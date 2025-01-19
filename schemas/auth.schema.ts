@@ -1,8 +1,10 @@
 import { z } from 'zod';
 
 export const authSchema = z.object({
-    username: z.string().min(3).max(255).optional(),
-    email: z.string().email().optional(),
+    name: z.string().min(3,
+        { message: "Nama harus memiliki minimal 3 karakter" }
+    ).max(255),
+    email: z.string().email({ message: "Email tidak valid" }),
     password: z
         .string()
         .min(8, { message: "Password harus memiliki minimal 8 karakter" })
@@ -16,5 +18,6 @@ export const authSchema = z.object({
             { message: "Password harus mengandung huruf besar, huruf kecil, angka, dan tanda baca" }
         ),
 });
-
+export const signInSchema = authSchema.pick({ password: true, email: true });
+export type SignInSchema = z.infer<typeof signInSchema>;
 export type AuthSchema = z.infer<typeof authSchema>;

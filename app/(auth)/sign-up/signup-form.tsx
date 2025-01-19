@@ -1,8 +1,5 @@
 "use client";
 
-import { signInSchema, SignInSchema } from "@/schemas/auth.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -14,61 +11,56 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { authClient } from "@/lib/auth/auth-client";
 import { useToast } from "@/hooks/use-toast";
-import { useTransition } from "react";
+import { authClient } from "@/lib/auth/auth-client";
+import { authSchema, AuthSchema } from "@/schemas/auth.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
 
-export default function SignInForm() {
+export default function SignUpForm() {
   const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
   const router = useRouter();
-
-  const form = useForm<SignInSchema>({
-    resolver: zodResolver(signInSchema),
+  const { toast } = useToast();
+  const form = useForm<AuthSchema>({
+    resolver: zodResolver(authSchema),
     defaultValues: {
-      email: "",
       password: "",
+      email: "",
+      name: "",
     },
   });
 
-  async function onSubmit(values: SignInSchema) {
-    const { email, password } = values;
+  async function onSubmit(values: AuthSchema) {
+    const { name, email, password } = values;
 
     startTransition(async () => {
       try {
-       await authClient.signIn.email(
+        await authClient.signUp.email(
           {
             email,
             password,
-            callbackURL: "/dashboard",
+            name,
+            callbackURL: "/sign-in",
           },
           {
             onRequest: () => {
               toast({
-                title: "Signing in...",
+                title: "Please wait...",
               });
             },
             onSuccess: () => {
-              toast({
-                title: "Successfully signed in!",
-              });
-              router.push("/dashboard"); 
+              router.push("/sign-in");
             },
             onError: (ctx) => {
-              toast({ 
-                title: "Sign in failed", 
-                description: ctx.error.message,
-                variant: "destructive" 
-              });
+              toast({ title: ctx.error.message, variant: "destructive" });
             },
           }
         );
       } catch (error) {
-
         toast({
-          title: "Something went wrong " + error,
-          description: "Please try again later",
+          title: "Something went wrong" + error.message,
           variant: "destructive",
         });
       }
@@ -85,14 +77,24 @@ export default function SignInForm() {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input 
-                  type="email" 
-                  placeholder="Enter your email" 
-                  {...field} 
-                  disabled={isPending}
-                />
+                <Input placeholder="" {...field} disabled={isPending} />
               </FormControl>
-              <FormDescription>Enter the email you registered with.</FormDescription>
+              <FormDescription>This is your email.</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="" {...field} disabled={isPending} />
+              </FormControl>
+              <FormDescription>This is your name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -107,19 +109,19 @@ export default function SignInForm() {
               <FormControl>
                 <Input 
                   type="password" 
-                  placeholder="Enter your password" 
+                  placeholder="" 
                   {...field} 
-                  disabled={isPending}
+                  disabled={isPending} 
                 />
               </FormControl>
-              <FormDescription>Enter your password.</FormDescription>
+              <FormDescription>This is your password.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit" disabled={isPending} className="w-full">
-          {isPending ? "Signing in..." : "Sign In"}
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Please wait..." : "Submit"}
         </Button>
       </form>
     </Form>
