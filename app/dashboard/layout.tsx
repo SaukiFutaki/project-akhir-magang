@@ -1,10 +1,12 @@
-import Header from '@/components/header/Header'
-import React from 'react'
+import Header from '@/components/header/Header';
+import MainView from '@/components/MainView';
 
 export default function DashboardLayout() {
+  
   return (
-    <div>
+    <div className=''>
         <Header />
+        <MainView />
     </div>
   )
 }
