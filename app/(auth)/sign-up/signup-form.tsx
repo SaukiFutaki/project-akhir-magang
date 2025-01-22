@@ -60,7 +60,7 @@ export default function SignUpForm() {
         );
       } catch (error) {
         toast({
-          title: "Something went wrong" + error.message,
+          title: "Something went wrong" + error,
           variant: "destructive",
         });
       }
