@@ -23,8 +23,12 @@ model User {
   createdAt     DateTime
   updatedAt     DateTime
   role          String?   @default("user")
-  Session       Session[]
-  Account       Account[]
+  
+  banned     Boolean?
+  banReason  String?
+  banExpires DateTime?
+  sessions   Session[]
+  accounts   Account[]
 
   @@map("user")
 }
@@ -39,6 +43,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  impersonatedBy String?
 
   @@unique([token])
   @@map("session")

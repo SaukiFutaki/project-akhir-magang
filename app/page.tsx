@@ -1,21 +1,37 @@
-import { DefaultDemo } from "@/components/tab-bar";
+import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth/auth";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 export default async function Home() {
   const session = await auth.api.getSession({
-    headers : await headers(),
+    headers: await headers(),
   });
 
-  console.log(session);
+
+
 
   return (
     <div className="flex justify-center items-center h-screen bg-black">
-      <Button variant={"destructive"}>
-        click me
-      </Button>
-      <DefaultDemo />
+      <h1 className="text-white text-2xl">
+        {session ? `Welcome back! ${session.user.email}` : "Welcome!"}
+      </h1>
+      {session ? (
+        <form
+          action={async () => {
+            "use server";
+            await auth.api.signOut({
+              headers: await headers(),
+            });
+            redirect("/sign-in");
+          }}
+        >
+          <Button>Sign out</Button>
+        </form>
+      ) : (
+        <Button>Sign in</Button>
+      )}
+     
     </div>
   );
 }

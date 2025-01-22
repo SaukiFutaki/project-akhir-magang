@@ -7,25 +7,41 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import SignInForm from "./signin-form";
-import Link from "next/link";
+// import Link from "next/link";
+import Image from "next/image";
+import { headers } from "next/headers";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
 
-export default function Page() {
+export default async function Page() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/dashboard");
+  }
+  
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Card Title</CardTitle>
-        <CardDescription>Card Description</CardDescription>
+        <CardTitle className="flex items-center justify-center">
+          <Image src={"/logoipsum-349.svg"} width={64} height={64} alt="Logo" />
+        </CardTitle>
+        <CardDescription className="flex items-center justify-center">
+          Selamat datang di dpu bmck kalender
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <SignInForm />
       </CardContent>
       <CardFooter className="flex justify-center">
-        <p className="text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
+        {/* <p className="text-sm text-muted-foreground">
+          Belum punya akun?{" "}
           <Link href="/sign-up" className="text-primary hover:underline">
-            Sign up
+            Daftar sekarang
           </Link>
-        </p>
+        </p> */}
       </CardFooter>
     </Card>
   );

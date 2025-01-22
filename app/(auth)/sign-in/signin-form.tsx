@@ -18,6 +18,7 @@ import { authClient } from "@/lib/auth/auth-client";
 import { useToast } from "@/hooks/use-toast";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export default function SignInForm() {
   const [isPending, startTransition] = useTransition();
@@ -37,7 +38,7 @@ export default function SignInForm() {
 
     startTransition(async () => {
       try {
-       await authClient.signIn.email(
+        await authClient.signIn.email(
           {
             email,
             password,
@@ -46,18 +47,18 @@ export default function SignInForm() {
           {
             onRequest: () => {
               toast({
-                title: "Signing in...",
+                title: "Sedang masuk...",
               });
             },
             onSuccess: () => {
               toast({
-                title: "Successfully signed in!",
+                title: "Berhasil masuk!",
               });
-              router.push("/dashboard"); 
+              router.push("/dashboard");
             },
             onError: (ctx) => {
               toast({ 
-                title: "Sign in failed", 
+                title: "Gagal masuk", 
                 description: ctx.error.message,
                 variant: "destructive" 
               });
@@ -65,10 +66,9 @@ export default function SignInForm() {
           }
         );
       } catch (error) {
-
         toast({
-          title: "Something went wrong " + error,
-          description: "Please try again later",
+          title: "Terjadi kesalahan " + error,
+          description: "Silakan coba lagi nanti",
           variant: "destructive",
         });
       }
@@ -87,12 +87,12 @@ export default function SignInForm() {
               <FormControl>
                 <Input 
                   type="email" 
-                  placeholder="Enter your email" 
+                  placeholder="Masukkan email Anda" 
                   {...field} 
                   disabled={isPending}
                 />
               </FormControl>
-              <FormDescription>Enter the email you registered with.</FormDescription>
+              <FormDescription>Masukkan email yang terdaftar.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -103,23 +103,23 @@ export default function SignInForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Password</FormLabel>
+              <FormLabel>Kata Sandi</FormLabel>
               <FormControl>
                 <Input 
                   type="password" 
-                  placeholder="Enter your password" 
+                  placeholder="Masukkan kata sandi Anda" 
                   {...field} 
                   disabled={isPending}
                 />
               </FormControl>
-              <FormDescription>Enter your password.</FormDescription>
+              <FormDescription>Masukkan kata sandi Anda.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
         <Button type="submit" disabled={isPending} className="w-full">
-          {isPending ? "Signing in..." : "Sign In"}
+          {isPending ? <Loader2 className="w-6 h-6 animate-spin" /> : "Masuk"}
         </Button>
       </form>
     </Form>
