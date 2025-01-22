@@ -2,6 +2,8 @@ import React from 'react'
 
 export default function RightSide() {
   return (
-    <div>RightSide</div>
+    <div className='flex items-center gap-3'>
+
+    </div>
   )
 }
