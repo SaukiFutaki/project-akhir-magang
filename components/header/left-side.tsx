@@ -3,7 +3,6 @@ import { Button } from "../ui/button";
 import { Menu } from "lucide-react";
 import Image from "next/image";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import dayjs from "dayjs";
 
 export default function LeftSide() {
   return (
@@ -12,7 +11,7 @@ export default function LeftSide() {
         <Button variant={"ghost"} className="rounded-full p-2">
           <Menu className="size-4" />
         </Button>
-        <Image src="/img/calendar_1_2x.png" width={40} height={40} alt="icon" />
+        <Image src="/tgl-demo.svg" width={36} height={36} alt="icon" className="mx-2" />
         <h1>Calendar</h1>
       </div>
 
