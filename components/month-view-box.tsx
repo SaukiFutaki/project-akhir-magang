@@ -1,5 +1,4 @@
-import { cn } from "@/lib/utils";
-import dayjs from "dayjs";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Dialog,
   DialogContent,
@@ -8,6 +7,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
+import dayjs from "dayjs";
 
 interface MonthViewBoxProps {
   day: dayjs.Dayjs | null;
@@ -35,8 +36,8 @@ export default function MonthViewBox({
     <Dialog>
       <DialogTrigger
         className={cn(
-          "group relative flex flex-col items-center gap-y-2 border",
-          "transition-all hover:bg-violet-50"
+          "group relative flex flex-col items-center gap-y-2 border bg-[#131314]",
+          "transition-all hover:bg-violet-50 dark:hover:bg-secondary"
         )}
       >
         <div>

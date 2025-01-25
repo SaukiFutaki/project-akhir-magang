@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useViewStore } from "@/lib/store";
 import { LogOut } from "lucide-react";
+import { ModeToggle } from "../dark-mode";
 
 interface IRightSideProps {
   avatar?: string;
@@ -25,11 +26,16 @@ interface IRightSideProps {
   logout?: () => void;
 }
 
-export default function RightSide({ avatar, username,logout }: IRightSideProps) {
+export default function RightSide({
+  avatar,
+  username,
+  logout,
+}: IRightSideProps) {
   const { setView } = useViewStore();
   return (
     <div className="flex items-center space-x-4">
       {/* <SearchComponent /> */}
+      <ModeToggle />
       <Select onValueChange={(v) => setView(v)}>
         <SelectTrigger className="w-24 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0">
           <SelectValue placeholder="Month" />
@@ -51,13 +57,13 @@ export default function RightSide({ avatar, username,logout }: IRightSideProps) 
         <DropdownMenuContent className="w-56 mr-4">
           <DropdownMenuLabel>{username}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-         
-          <DropdownMenuItem className="hover:bg-red-500" onClick={logout}>
-          <LogOut />
-          <span>Sign out</span>
 
-          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-        </DropdownMenuItem>
+          <DropdownMenuItem className="hover:bg-red-500" onClick={logout}>
+            <LogOut />
+            <span>Sign out</span>
+
+            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

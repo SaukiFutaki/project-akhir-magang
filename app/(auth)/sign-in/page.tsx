@@ -2,15 +2,16 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
-  CardTitle,
+  CardTitle
 } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SignInForm from "./signin-form";
+
 // import Link from "next/link";
-import Image from "next/image";
-import { headers } from "next/headers";
 import { auth } from "@/auth";
+import { headers } from "next/headers";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
@@ -21,28 +22,57 @@ export default async function Page() {
   if (session) {
     redirect("/dashboard");
   }
-  
+
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-center">
-          <Image src={"/logoipsum-349.svg"} width={64} height={64} alt="Logo" />
-        </CardTitle>
-        <CardDescription className="flex items-center justify-center">
-          Selamat datang di dpu bmck kalender
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <SignInForm />
-      </CardContent>
-      <CardFooter className="flex justify-center">
-        {/* <p className="text-sm text-muted-foreground">
-          Belum punya akun?{" "}
-          <Link href="/sign-up" className="text-primary hover:underline">
-            Daftar sekarang
-          </Link>
-        </p> */}
-      </CardFooter>
-    </Card>
+    <main className="flex h-svh w-full items-center justify-center">
+      <section className="relative hidden h-full flex-1 items-center justify-center border-r lg:flex">
+        <Image
+          src="/sign-in.jpg"
+          alt="Image"
+          className="w-full object-cover  "
+          fill
+        />
+      </section>
+      <section className="bg-mute flex h-full flex-1 items-center justify-center">
+        <Tabs defaultValue="admin" className="w-full max-w-96 px-4">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="admin">Admin</TabsTrigger>
+            <TabsTrigger value="user">
+              User
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="admin">
+            <Card className="mx-auto w-full max-w-md border-none bg-card shadow-lg dark:border">
+              <CardHeader className="text-center">
+                <CardTitle className="font-bold tracking-tight">
+                  Admin
+                </CardTitle>
+                <CardDescription className="text-base">
+                  Masukan password untuk melanjutkan.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SignInForm email="utaki.sauki19@gmail.com" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="user">
+            <Card className="mx-auto w-full max-w-md border-none bg-card shadow-lg dark:border">
+              <CardHeader className="text-center">
+                <CardTitle className="font-bold tracking-tight">
+                User
+                </CardTitle>
+                <CardDescription className="text-base">
+                Masukan password untuk melanjutkan.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SignInForm email="" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </section>
+    </main>
   );
 }
