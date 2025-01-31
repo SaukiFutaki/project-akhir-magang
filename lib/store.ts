@@ -4,9 +4,9 @@ import {
   ToggleSideBarType,
   ViewStoreType,
 } from "@/types";
+import dayjs, { Dayjs } from "dayjs";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import dayjs, { Dayjs } from "dayjs";
 import { getMonth } from "./get-time";
 
 export const useViewStore = create<ViewStoreType>()(

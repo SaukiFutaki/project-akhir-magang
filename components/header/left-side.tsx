@@ -8,6 +8,7 @@ import { useDateStore, useViewStore } from "@/lib/store";
 import dayjs from "dayjs";
 import { Roboto } from "next/font/google";
 
+
 const roboto = Roboto({
   weight: "400",
   subsets: ["latin"],
@@ -38,6 +39,9 @@ export default function LeftSide() {
 
   const handlePrevClick = () => {
     switch (selectedView) {
+      case "year":
+        setDate(userSelectedDate.subtract(1, "year"));
+        break;
       case "month":
         setMonth(selectedMonthIndex - 1);
         break;
@@ -54,6 +58,9 @@ export default function LeftSide() {
 
   const handleNextClick = () => {
     switch (selectedView) {
+      case "year":
+        setDate(userSelectedDate.add(1, "year"));
+        break;
       case "month":
         setMonth(selectedMonthIndex + 1);
         break;
@@ -82,6 +89,8 @@ export default function LeftSide() {
         return `${startOfWeek.format("MMM D")} - ${endOfWeek.format(
           "MMM D, YYYY"
         )}`;
+      case "year":
+        return dayjs(userSelectedDate).format("YYYY");
       default:
         return "";
     }
@@ -113,11 +122,11 @@ export default function LeftSide() {
       {/* Navigation Controls */}
       <div className="flex items-center gap-3">
         <MdKeyboardArrowLeft
-          className="size-6 cursor-pointer font-bold hover:bg-gray-200 hover:opacity-75 rounded-full"
+          className="size-6 cursor-pointer font-bold hover:bg-gray-200 hover:opacity-75 rounded-full dark:hover:bg-secondary"
           onClick={handlePrevClick}
         />
         <MdKeyboardArrowRight
-          className="size-6 cursor-pointer font-bold hover:bg-gray-200 hover:opacity-75 rounded-full"
+          className="size-6 cursor-pointer font-bold hover:bg-gray-200 hover:opacity-75 rounded-full dark:hover:bg-secondary"
           onClick={handleNextClick}
         />
       </div>

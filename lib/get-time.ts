@@ -64,3 +64,11 @@ export const getWeeks = (monthIndex: number) => {
 
   return weeks;
 };
+
+export const getYears = (startYear = dayjs().year() - 4, endYear = dayjs().year() + 5) => {
+  const years = [];
+  for (let year = startYear; year <= endYear; year++) {
+    years.push(year);
+  }
+  return years;
+};

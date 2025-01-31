@@ -6,6 +6,7 @@ import { ScrollArea } from "./ui/scroll-area";
 import { getHours, isCurrentDay } from "@/lib/get-time";
 import { EventRenderer } from "./event-renderer";
 
+
 export default function DayView() {
   const [currentTime, setCurrentTime] = useState(dayjs());
   const { openPopover, events } = useEventStore();
@@ -63,7 +64,7 @@ export default function DayView() {
             {getHours.map((hour, i) => (
               <div
                 key={i}
-                className="relative flex h-16 cursor-pointer flex-col items-center gap-y-2 border-b border-gray-300 hover:bg-gray-100"
+                className="relative flex h-16 cursor-pointer flex-col items-center gap-y-2 border-b border-gray-300 hover:bg-gray-100 dark:hover:bg-secondary"
                 onClick={() => {
                   setDate(userSelectedDate.hour(hour.hour()));
                   openPopover();
@@ -73,6 +74,7 @@ export default function DayView() {
                   events={events}
                   date={userSelectedDate.hour(hour.hour())}
                   view="day"
+                  className="w-full"
                 />
               </div>
             ))}

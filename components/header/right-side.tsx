@@ -32,6 +32,14 @@ export default function RightSide({
   logout,
 }: IRightSideProps) {
   const { setView } = useViewStore();
+
+  const capitalizeEachWord = (string?: string) => {
+    if (!string) return "User"; // Fallback jika username kosong
+    return string
+      .split(" ") // Pisahkan kata-kata berdasarkan spasi
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Kapitalisasi huruf pertama
+      .join(" "); // Gabungkan kembali kata-kata
+  };
   return (
     <div className="flex items-center space-x-4">
       {/* <SearchComponent /> */}
@@ -44,6 +52,7 @@ export default function RightSide({
           <SelectItem value="month">Month</SelectItem>
           <SelectItem value="week">Week</SelectItem>
           <SelectItem value="day">Day</SelectItem>
+          <SelectItem value="year">Year</SelectItem>
         </SelectContent>
       </Select>
 
@@ -55,14 +64,14 @@ export default function RightSide({
           </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56 mr-4">
-          <DropdownMenuLabel>{username}</DropdownMenuLabel>
+          <DropdownMenuLabel>{capitalizeEachWord(username)}</DropdownMenuLabel>
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem className="hover:bg-red-500" onClick={logout}>
+          <DropdownMenuItem className="bg-red-500 hover:cursor-pointer" onClick={logout}>
             <LogOut />
             <span>Sign out</span>
 
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+           
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
