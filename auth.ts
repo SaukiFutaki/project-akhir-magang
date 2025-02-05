@@ -11,9 +11,9 @@ export const auth = betterAuth({
     enabled: true,
   },
   session: {
-    // 1 days
-    expiresIn: 60 * 60 * 24,
-    updateAge: 60 * 60 * 24,
+    
+    expiresIn:  60 * 60 * 24,  // 24 hours
+    updateAge: 60 * 60  *24 , // 24 hours
   },
   plugins: [admin()],
 });

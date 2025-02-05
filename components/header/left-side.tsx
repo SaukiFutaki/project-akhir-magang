@@ -1,15 +1,23 @@
 "use client";
 
-import { Button } from "../ui/button";
-import { Menu } from "lucide-react";
-import Image from "next/image";
-import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import { useDateStore, useViewStore } from "@/lib/store";
+import { useDateStore, useToggleSideBarStore, useViewStore } from "@/lib/store";
 import dayjs from "dayjs";
-import { Roboto } from "next/font/google";
-
+import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import { Bebas_Neue, Kanit, Roboto } from "next/font/google";
+import Image from "next/image";
+import { Button } from "../ui/button";
 
 const roboto = Roboto({
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const kanit = Kanit({
+  weight: "400",
+  subsets: ["latin"],
+});
+
+const bebasNeue = Bebas_Neue({
   weight: "400",
   subsets: ["latin"],
 });
@@ -19,6 +27,7 @@ export default function LeftSide() {
   const { userSelectedDate, setDate, setMonth, selectedMonthIndex } =
     useDateStore();
   const { selectedView } = useViewStore();
+  const { setSideBarOpen } = useToggleSideBarStore();
 
   const handleTodayClick = () => {
     switch (selectedView) {
@@ -100,7 +109,11 @@ export default function LeftSide() {
     <div className="flex items-center gap-3">
       {/* Sidebar Toggle and Calendar Icon */}
       <div className="hidden items-center lg:flex">
-        <Button variant="ghost" className="rounded-full p-2">
+        <Button
+          variant="ghost"
+          className="rounded-full p-2"
+          onClick={() => setSideBarOpen()}
+        >
           <Menu className="size-6" />
         </Button>
         <Image
@@ -109,26 +122,30 @@ export default function LeftSide() {
           height={40}
           alt="icon"
         />
+      
         <h1 className={`${roboto.className} text-xl font-bold mx-3`}>
-          DPU Calendar
+          Kalender DPU BMCK
         </h1>
       </div>
 
       {/* Today Button */}
       <Button variant="outline" onClick={handleTodayClick}>
-        Today
+        Hari Ini
       </Button>
 
       {/* Navigation Controls */}
       <div className="flex items-center gap-3">
-        <MdKeyboardArrowLeft
+        <Button variant="outline" size="icon" onClick={handlePrevClick}>
+          <ChevronLeft />
+        </Button>
+        <Button variant="outline" size="icon" onClick={handleNextClick}>
+          <ChevronRight />
+        </Button>
+        {/* <MdKeyboardArrowLeft
           className="size-6 cursor-pointer font-bold hover:bg-gray-200 hover:opacity-75 rounded-full dark:hover:bg-secondary"
           onClick={handlePrevClick}
-        />
-        <MdKeyboardArrowRight
-          className="size-6 cursor-pointer font-bold hover:bg-gray-200 hover:opacity-75 rounded-full dark:hover:bg-secondary"
-          onClick={handleNextClick}
-        />
+        /> */}
+        {/* <MdKeyboardArrowRight className="size-6 cursor-pointer font-bold hover:bg-gray-200 hover:opacity-75 rounded-full dark:hover:bg-secondary" /> */}
       </div>
 
       {/* Current Month and Year Display */}

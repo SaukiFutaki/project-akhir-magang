@@ -6,8 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import {
   Select,
@@ -31,28 +30,41 @@ export default function RightSide({
   username,
   logout,
 }: IRightSideProps) {
-  const { setView } = useViewStore();
+  const { selectedView, setView } = useViewStore();
 
   const capitalizeEachWord = (string?: string) => {
-    if (!string) return "User"; // Fallback jika username kosong
+    if (!string) return "User";
     return string
-      .split(" ") // Pisahkan kata-kata berdasarkan spasi
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()) // Kapitalisasi huruf pertama
-      .join(" "); // Gabungkan kembali kata-kata
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
   };
+
   return (
     <div className="flex items-center space-x-4">
-      {/* <SearchComponent /> */}
       <ModeToggle />
-      <Select onValueChange={(v) => setView(v)}>
+      <Select value={selectedView} onValueChange={(v) => setView(v)}>
         <SelectTrigger className="w-24 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0">
-          <SelectValue placeholder="Month" />
+          <SelectValue>
+            {selectedView === "month" && "Bulan"}
+            {selectedView === "week" && "Minggu"}
+            {selectedView === "day" && "Hari"}
+            {selectedView === "year" && "Tahun"}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="month">Month</SelectItem>
-          <SelectItem value="week">Week</SelectItem>
-          <SelectItem value="day">Day</SelectItem>
-          <SelectItem value="year">Year</SelectItem>
+          <SelectItem value="month">
+            Bulan
+          </SelectItem>
+          <SelectItem value="week">
+            Minggu
+          </SelectItem>
+          <SelectItem value="day">
+            Hari
+          </SelectItem>
+          <SelectItem value="year">
+            Tahun
+          </SelectItem>
         </SelectContent>
       </Select>
 
@@ -66,12 +78,12 @@ export default function RightSide({
         <DropdownMenuContent className="w-56 mr-4">
           <DropdownMenuLabel>{capitalizeEachWord(username)}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-
-          <DropdownMenuItem className="bg-red-500 hover:cursor-pointer" onClick={logout}>
-            <LogOut />
+          <DropdownMenuItem 
+            className="bg-red-500 hover:cursor-pointer text-white" 
+            onClick={logout}
+          >
+            <LogOut className="mr-2" />
             <span>Sign out</span>
-
-           
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -7,25 +7,18 @@ import { AnimatePresence, motion } from "framer-motion";
 import React, { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { FiFile } from "react-icons/fi";
-import {
-  HiOutlineLink,
-  HiOutlineMenuAlt2
-} from "react-icons/hi";
+import { HiOutlineLink, HiOutlineMenuAlt2 } from "react-icons/hi";
 import { IoMdCalendar } from "react-icons/io";
 import { IoCloseSharp } from "react-icons/io5";
 import * as z from "zod";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage
-} from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
 import { useRouter } from "next/navigation";
 import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
+import { Upload } from "lucide-react";
 
 interface EventPopoverProps {
   isOpen: boolean;
@@ -43,6 +36,7 @@ export default function EventPopover({
   const popoverRef = useRef<HTMLDivElement>(null);
   const [selectedTime, setSelectedTime] = useState(dayjs().format("HH:mm"));
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -59,7 +53,7 @@ export default function EventPopover({
     startTransition(async () => {
       await createEvent({
         ...values,
-        time: selectedTime
+        time: selectedTime,
       });
       router.refresh();
       onClose();
@@ -70,8 +64,19 @@ export default function EventPopover({
     const file = e.target.files?.[0];
     if (file) {
       form.setValue("documentationFile", file);
+      // Create preview if it's an image
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFilePreview(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview(null);
+      }
     }
   };
+
 
   return (
     <AnimatePresence>
@@ -169,13 +174,8 @@ export default function EventPopover({
                               <HiOutlineLink className="size-5 text-slate-600 dark:text-slate-400" />
                               <FormControl>
                                 <Input
-                                  placeholder="Add documentation URL"
+                                  placeholder="Link dokumentasi"
                                   {...field}
-                                  className={cn(
-                                    "w-full rounded-lg border-0 bg-slate-100 pl-7 placeholder:text-slate-600",
-                                    "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0",
-                                    "dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
-                                  )}
                                 />
                               </FormControl>
                             </div>
@@ -198,15 +198,7 @@ export default function EventPopover({
                             <div className="flex items-center space-x-3">
                               <HiOutlineMenuAlt2 className="size-5 text-slate-600 dark:text-slate-400" />
                               <FormControl>
-                                <Textarea
-                                  placeholder="Add description"
-                                  {...field}
-                                  className={cn(
-                                    "w-full rounded-lg border-0 bg-slate-100 pl-7 placeholder:text-slate-600",
-                                    "focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0",
-                                    "dark:bg-slate-700 dark:text-white dark:placeholder-slate-400"
-                                  )}
-                                />
+                                <Textarea placeholder="Deskripsi" {...field} />
                               </FormControl>
                             </div>
                             <FormMessage />
@@ -214,18 +206,34 @@ export default function EventPopover({
                         )}
                       />
                     </motion.div>
-                    <div className="flex items-center space-x-3">
-                      <FiFile className="size-5 text-slate-600 dark:text-slate-400" />
-                      <Input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleFileChange}
-                        className={cn(
-                          "w-full rounded-lg border-0 bg-slate-100 pl-7 file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold",
-                          "dark:bg-slate-700 dark:text-white dark:file:bg-blue-900"
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <FormField
+                        control={form.control}
+                        name="documentationFile"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex items-center space-x-3">
+                              <HiOutlineMenuAlt2 className="size-5 text-slate-600 dark:text-slate-400" />
+                              <FormControl>
+                                <div className="flex items-center space-x-3">
+                                  <Input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleFileChange}
+                                    hidden
+                                  />
+                                </div>
+                              </FormControl>
+                            </div>
+                            <FormMessage />
+                          </FormItem>
                         )}
                       />
-                    </div>
+                    </motion.div>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}

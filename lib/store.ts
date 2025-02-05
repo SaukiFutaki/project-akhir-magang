@@ -13,7 +13,7 @@ export const useViewStore = create<ViewStoreType>()(
   devtools(
     persist(
       (set) => ({
-        selectedView: "month",
+        selectedView: "year",
         setView: (value: string) => {
           set({ selectedView: value });
         },

@@ -6,6 +6,8 @@ import { redirect } from "next/navigation";
 import prisma from "./prisma";
 import { z } from "zod";
 import { FormEditEventValues, FormEventValues } from "@/schemas/events.schema";
+import { supabase } from "./supabase";
+import { v4 as uuidv4 } from 'uuid';
 
 export async function signOut() {
   await auth.api.signOut({
@@ -20,8 +22,35 @@ const eventSchema = z.object({
   date: z.date(),
   time: z.string(),
   documentationUrl: z.string().url().optional(),
-  documentationFile: z.string().optional(),
+  documentationFile: z.instanceof(File).optional(),
 });
+
+async function uploadFile(file: File, bucket: string = 'file-docs') {
+  try {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${uuidv4()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .upload(filePath, file);
+
+
+
+    if (error) throw error;
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(filePath);
+
+    return publicUrl;
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    throw error;
+  }
+}
+
 
 export async function createEvent(values: FormEventValues) {
   const session = await auth.api.getSession({
@@ -30,6 +59,7 @@ export async function createEvent(values: FormEventValues) {
   if (!session?.user) {
     return { error: "Unauthorized" };
   }
+
   const {
     title,
     description,
@@ -39,7 +69,7 @@ export async function createEvent(values: FormEventValues) {
     time,
   } = values;
 
-  console.log(title, description, documentationFile, documentationUrl, date);
+   console.log(title, description, documentationFile, documentationUrl, date);
 
   const validatedFields = eventSchema.safeParse({
     title,
@@ -57,12 +87,19 @@ export async function createEvent(values: FormEventValues) {
   }
 
   try {
+    // Handle file upload if exists
+    let fileUrl: string | undefined;
+    if (documentationFile) {
+      fileUrl = await uploadFile(documentationFile);
+    }
+
+    // Create event with file URL if uploaded
     const event = await prisma.event.create({
       data: {
         title: validatedFields.data.title,
         description: validatedFields.data.description,
         documentationUrl: validatedFields.data.documentationUrl,
-        documentationFile: validatedFields.data.documentationFile,
+        documentationFile: fileUrl,
         date: validatedFields.data.date,
         time: validatedFields.data.time,
         userId: session.user.id,
@@ -70,7 +107,8 @@ export async function createEvent(values: FormEventValues) {
     });
 
     return { success: true, event };
-  } catch {
+  } catch (error) {
+    console.error('Error in createEvent:', error);
     return { error: "Failed to create event" };
   }
 }
@@ -145,7 +183,7 @@ export async function deleteEvent(id: string) {
     });
 
     return { success: true };
-  } catch (error) {
+  } catch {
     return { error: "Failed to delete event" };
   }
 }

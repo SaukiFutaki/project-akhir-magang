@@ -89,6 +89,7 @@ model Event {
   date          DateTime
   time          String
   documentationUrl String?
+  // file
   documentationFile String?
   
   userId        String

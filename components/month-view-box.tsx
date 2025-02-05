@@ -10,7 +10,7 @@ import {
 import { useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
-import React from "react";
+import React, { use } from "react";
 import { Badge } from "./ui/badge";
 import { EventRenderer } from "./event-renderer";
 import { ScrollArea } from "./ui/scroll-area";
@@ -21,15 +21,16 @@ interface MonthViewBoxProps {
   collIndex: number;
 }
 
-const WEEKDAYS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+const WEEKDAYS = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
 
 export default function MonthViewBox({
   day,
   rowIndex,
   collIndex,
 }: MonthViewBoxProps) {
-  const { setDate } = useDateStore();
+  const { setDate,userSelectedDate } = useDateStore();
   const { openPopover, events } = useEventStore();
+
   if (!day) {
     return (
       <div className="h-12 w-full border md:h-28 md:w-full lg:h-full"></div>
@@ -39,6 +40,9 @@ export default function MonthViewBox({
   const isFirstDayOfMonth = day.date() === 1;
   const isToday = day.format("DD-MM-YY") === dayjs().format("DD-MM-YY");
   const handleClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("[data-event-container]")) {
+      return;
+    }
     e.preventDefault();
     setDate(day);
     openPopover();
@@ -53,10 +57,13 @@ export default function MonthViewBox({
     >
       <div>
         <div className="flex flex-col items-center pt-2 mb-1">
-          <h4 className="text-xs text-gray-500 mb-[2px]">{WEEKDAYS[day.day()]}</h4>
+          <h4 className="text-xs text-gray-500 mb-[2px]">
+            {WEEKDAYS[day.day()]}
+          </h4>
           <h4
             className={cn(
-              "text-center text-sm",
+              "text-center text-xl",
+              userSelectedDate.format("DD-MM-YY") === day.format("DD-MM-YY") && "flex h-8 w-8 items-center justify-center rounded-full bg-gray-300 text-black",
               isToday &&
                 "flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white"
             )}
@@ -64,16 +71,19 @@ export default function MonthViewBox({
             {isFirstDayOfMonth ? day.format("MMM D") : day.format("D")}
           </h4>
         </div>
-    
-          <ScrollArea className="h-24">
+
+        <ScrollArea className="h-24">
+          <div data-event-container
+          onClick={(e) => e.stopPropagation()}
+          >
             <EventRenderer
               date={day}
               view="month"
               events={events}
               className=" md:w-[130px] lg:w-[170px]"
             />
-          </ScrollArea>
-      
+          </div>
+        </ScrollArea>
       </div>
     </div>
   );

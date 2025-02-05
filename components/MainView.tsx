@@ -104,13 +104,13 @@ export default function MainView({ events }: MainViewProps) {
           />
         )}
 
-        {isEventSummaryOpen && selectedEvent && (
+        {/* {isEventSummaryOpen && selectedEvent && (
           <EventSummaryPopover
             isOpen={isEventSummaryOpen}
             onClose={closeEventSummary}
             event={selectedEvent}
           />
-        )}
+        )} */}
       </div>
     </div>
   );
