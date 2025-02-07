@@ -12,6 +12,7 @@ datasource db {
 
 generator client {
   provider = "prisma-client-js"
+   output   = "./generated/client"
 }
 
 model User {
@@ -90,8 +91,8 @@ model Event {
   time          String
   documentationUrl String?
   // file
-  documentationFile String?
-  
+  documentationFiles  Json?
+  location      String?
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   

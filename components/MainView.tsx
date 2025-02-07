@@ -1,17 +1,16 @@
 "use client";
 
 import { useDateStore, useEventStore, useViewStore } from "@/lib/store";
+import { CalendarEventType } from "@/types";
+import dayjs from "dayjs";
 import { AnimatePresence, motion } from "framer-motion";
+import { useEffect } from "react";
 import DayView from "./day-view";
+import EventPopover from "./event-popover";
 import MonthView from "./month-view";
 import Sidebar from "./sidebar/sidebar";
 import WeekView from "./week-view";
 import YearView from "./year-view";
-import EventPopover from "./event-popover";
-import { EventSummaryPopover } from "./event-summary-popover";
-import { CalendarEventType } from "@/types";
-import { useEffect } from "react";
-import dayjs from "dayjs";
 
 interface MainViewProps {
   events: CalendarEventType[];
@@ -22,9 +21,6 @@ export default function MainView({ events }: MainViewProps) {
   const {
     isPopoverOpen,
     closePopover,
-    isEventSummaryOpen,
-    closeEventSummary,
-    selectedEvent,
     setEvents,
   } = useEventStore();
 
@@ -36,7 +32,8 @@ export default function MainView({ events }: MainViewProps) {
       id: event.id,
       date: dayjs(event.date),
       time: event.time,
-      documentationFile: event.documentationFile,
+      documentationFiles: event.documentationFiles,
+      location: event.location,
       documentationUrl: event.documentationUrl,
       title: event.title,
       description: event.description,

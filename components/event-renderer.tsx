@@ -19,12 +19,14 @@ import { Card } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { Days, Months } from "@/lib/constant";
+
 type EventRendererProps = {
   date: dayjs.Dayjs;
-  view: "month" | "week" | "day";
+  view: "month" | "week" | "day" | "year"
   events: CalendarEventType[];
   className?: string;
-  time ?: string;
+  time?: string;
   style?: React.CSSProperties;
 };
 
@@ -41,28 +43,13 @@ const eventColors = [
   "bg-violet-500 hover:bg-violet-600",
 ];
 
-const Days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-const Months = [
-  "Januari",
-  "Februari",
-  "Maret",
-  "April",
-  "Mei",
-  "Juni",
-  "Juli",
-  "Agustus",
-  "September",
-  "Oktober",
-  "November",
-  "Desember",
-];
+
 export function EventRenderer({
   date,
   view,
   events,
   className,
   style,
-  time,
 }: EventRendererProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -88,8 +75,8 @@ export function EventRenderer({
     startTransition(() => {
       deleteEvent(event.id);
       toast({
-        description: "Berhasil menghapus event"
-      })
+        description: "Berhasil menghapus event",
+      });
     });
     router.refresh();
   };
@@ -114,7 +101,8 @@ export function EventRenderer({
                 {event.title}
               </SheetTitle>
               <SheetDescription className="text-sm text-gray-500">
-                {Days[event.date.day()]}, {event.date.format("DD MMMM YYYY")} •{" "}
+                {Days[event.date.day()]}, {event.date.format("DD")}{" "}
+                {Months[event.date.month()]} {event.date.format("YYYY")} •{" "}
                 <span className="italic">Waktu ditambahkan: {event.time}</span>
               </SheetDescription>
             </SheetHeader>
@@ -130,7 +118,7 @@ export function EventRenderer({
                 </div>
 
                 {/* Dokumen Terkait */}
-                {event.documentationUrl || event.documentationFile ? (
+                {event.documentationUrl || event.documentationFiles ? (
                   <div>
                     <h3 className="font-semibold text-lg mb-2">Dokumen</h3>
                     <Card className="p-4">
@@ -147,11 +135,7 @@ export function EventRenderer({
                               URL Dokumentasi
                             </Link>
                           )}
-                          {event.documentationFile && (
-                            <p className="text-sm text-gray-500">
-                              {event.documentationFile}
-                            </p>
-                          )}
+                          
                         </div>
                       </div>
                     </Card>

@@ -3,7 +3,7 @@
 import { useDateStore, useToggleSideBarStore, useViewStore } from "@/lib/store";
 import dayjs from "dayjs";
 import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
-import { Bebas_Neue, Kanit, Roboto } from "next/font/google";
+import { Roboto } from "next/font/google";
 import Image from "next/image";
 import { Button } from "../ui/button";
 
@@ -12,15 +12,6 @@ const roboto = Roboto({
   subsets: ["latin"],
 });
 
-const kanit = Kanit({
-  weight: "400",
-  subsets: ["latin"],
-});
-
-const bebasNeue = Bebas_Neue({
-  weight: "400",
-  subsets: ["latin"],
-});
 
 export default function LeftSide() {
   const todayDate = dayjs();

@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+
 import Header from "@/components/header/Header";
 import MainView from "@/components/MainView";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -17,7 +17,6 @@ export default async function DashboardLayout() {
   // }
 
   const data = await getEvents();
-  
   return (
     <div className="">
       <ScrollArea className="h-[100vh]">

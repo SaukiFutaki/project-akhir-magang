@@ -12,15 +12,10 @@ export interface DateStoreType {
   twoDMonthArray: dayjs.Dayjs[][];
   selectedMonthIndex: number;
   setMonth: (index: number) => void;
-  // year
-  // selectedYear: number;
-  // setSelectedYear: (year: number) => void;
-  // twoDYearArray: dayjs.Dayjs[][];
 
 }
 
 export type EventStore = {
-
   events: CalendarEventType[];
   isPopoverOpen: boolean;
   isEventSummaryOpen: boolean;
@@ -42,7 +37,13 @@ export type CalendarEventType = {
   title: string;
   date: dayjs.Dayjs;
   time: string;
+  location: string | undefined;
+  documentationFiles: {
+    fullPath : string
+    id : string
+    path : string
+    url : string
+  }[]
   description: string;
   documentationUrl: string | undefined;
-  documentationFile: string | undefined
 };

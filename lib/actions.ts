@@ -16,41 +16,55 @@ export async function signOut() {
   redirect("/");
 }
 
-const eventSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+ const eventSchema = z.object({
+  title: z.string().min(1, { message: "Title is required" }),
   description: z.string().optional(),
-  date: z.date(),
-  time: z.string(),
-  documentationUrl: z.string().url().optional(),
-  documentationFile: z.instanceof(File).optional(),
+  documentationUrl: z.string().optional(),
+  documentationFiles: z.array(z.any()).optional(),
+  location: z.string().optional(),
+  date : z.date(),
+    time: z.string(),
 });
 
-async function uploadFile(file: File, bucket: string = 'file-docs') {
+// Upload multiple files and return array of URLs
+async function uploadFiles(files: File[], bucket: string = 'file-docs') {
   try {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${uuidv4()}.${fileExt}`;
-    const filePath = `${fileName}`;
+    const uploadPromises = files.map(async (file) => {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${uuidv4()}.${fileExt}`;
+      // Add images/ prefix to create folder structure
+      const filePath = `images/${fileName}`;
 
-    const { data, error } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file);
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
 
+      if (error) throw error;
 
+      // Get public URL for the file in the images folder
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(filePath);
 
-    if (error) throw error;
+      return {
+        url: publicUrl,
+        path: filePath,
+        id: data?.id || uuidv4(),
+        fullPath: `${bucket}/${filePath}`
+      };
+    });
 
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from(bucket)
-      .getPublicUrl(filePath);
-
-    return publicUrl;
+    // Wait for all uploads to complete
+    const fileData = await Promise.all(uploadPromises);
+    return fileData;
   } catch (error) {
-    console.error('Error uploading file:', error);
+    console.error('Error uploading files:', error);
     throw error;
   }
 }
-
 
 export async function createEvent(values: FormEventValues) {
   const session = await auth.api.getSession({
@@ -63,21 +77,21 @@ export async function createEvent(values: FormEventValues) {
   const {
     title,
     description,
-    documentationFile,
+    documentationFiles,
     documentationUrl,
     date,
     time,
+    location,
   } = values;
-
-   console.log(title, description, documentationFile, documentationUrl, date);
 
   const validatedFields = eventSchema.safeParse({
     title,
     description,
-    documentationFile,
+    documentationFiles,
     documentationUrl,
     date,
     time,
+    location,
   });
 
   if (!validatedFields.success) {
@@ -87,22 +101,23 @@ export async function createEvent(values: FormEventValues) {
   }
 
   try {
-    // Handle file upload if exists
-    let fileUrl: string | undefined;
-    if (documentationFile) {
-      fileUrl = await uploadFile(documentationFile);
+    // Handle multiple file uploads if files exist
+    let fileData: { url: string; path: string; id: string; fullPath: string; }[] = [];
+    if (documentationFiles && documentationFiles.length > 0) {
+      fileData = await uploadFiles(documentationFiles);
     }
 
-    // Create event with file URL if uploaded
+    // Create event with array of file data
     const event = await prisma.event.create({
       data: {
         title: validatedFields.data.title,
         description: validatedFields.data.description,
         documentationUrl: validatedFields.data.documentationUrl,
-        documentationFile: fileUrl,
+        documentationFiles: fileData, // Store complete file data
         date: validatedFields.data.date,
         time: validatedFields.data.time,
         userId: session.user.id,
+        location: validatedFields.data.location,
       },
     });
 
@@ -116,8 +131,21 @@ export async function createEvent(values: FormEventValues) {
 export async function getEvents() {
   try {
     const events = await prisma.event.findMany({
+      select:{
+        id: true,
+        title: true,
+        description: true,
+        date: true,
+        time: true,
+        location: true,             // tambahkan ini
+        documentationUrl: true,
+        documentationFiles: true,   // tambahkan ini
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: {
-        createdAt: "desc",
+        date: "asc",
       },
     });
     return { success: true, events };

@@ -4,7 +4,8 @@ export const eventSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
   description: z.string().optional(),
   documentationUrl: z.string().optional(),
-  documentationFile: z.instanceof(File).optional(),
+  documentationFiles: z.array(z.any()).optional(),
+  location: z.string().optional(),
   date : z.date(),
     time: z.string(),
 });

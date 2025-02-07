@@ -4,9 +4,18 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["@heroicons/react", "react-icons"],
     serverActions :{
-      bodySizeLimit : "10mb",
+      bodySizeLimit : "100mb",
     }
   },
+  images : {
+    remotePatterns :[
+      {
+        protocol: 'https',
+        hostname: 'dyapehwgtewrhepdzifu.supabase.co',
+      }
+    ]
+  }
+  
 };
 
 export default nextConfig;

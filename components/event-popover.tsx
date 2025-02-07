@@ -1,29 +1,33 @@
-import { createEvent } from "@/lib/actions";
-import { cn } from "@/lib/utils";
-import { eventSchema, FormEventValues } from "@/schemas/events.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
-import dayjs from "dayjs";
-import { AnimatePresence, motion } from "framer-motion";
 import React, { useRef, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { FiFile } from "react-icons/fi";
-import { HiOutlineLink, HiOutlineMenuAlt2 } from "react-icons/hi";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import dayjs from "dayjs";
+import { AnimatePresence, motion } from "framer-motion";
+import { Loader2, MapPin, Upload, X } from "lucide-react";
 import { IoMdCalendar } from "react-icons/io";
+import { HiOutlineLink, HiOutlineMenuAlt2 } from "react-icons/hi";
 import { IoCloseSharp } from "react-icons/io5";
-import * as z from "zod";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
-import { useRouter } from "next/navigation";
 import { Textarea } from "./ui/textarea";
-import { Label } from "./ui/label";
-import { Upload } from "lucide-react";
+import { createEvent } from "@/lib/actions";
+import { eventSchema } from "@/schemas/events.schema";
+import * as z from "zod";
+import Image from "next/image";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface EventPopoverProps {
   isOpen: boolean;
   onClose: () => void;
   date: string;
+}
+
+interface FilePreview {
+  file: File;
+  preview: string;
 }
 
 export default function EventPopover({
@@ -35,21 +39,56 @@ export default function EventPopover({
   const [isPending, startTransition] = useTransition();
   const popoverRef = useRef<HTMLDivElement>(null);
   const [selectedTime, setSelectedTime] = useState(dayjs().format("HH:mm"));
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [filePreviews, setFilePreviews] = useState<FilePreview[]>([]);
+
   const form = useForm<z.infer<typeof eventSchema>>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
       title: "",
       description: "",
       documentationUrl: "",
-      documentationFile: undefined,
+      documentationFiles: [],
       date: new Date(date),
       time: dayjs().format("HH:mm"),
+      location: "",
     },
   });
 
-  const onSubmit = (values: FormEventValues) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const newPreviews: FilePreview[] = [];
+
+    files.forEach((file) => {
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          newPreviews.push({
+            file,
+            preview: reader.result as string,
+          });
+          if (newPreviews.length === files.length) {
+            setFilePreviews((prev) => [...prev, ...newPreviews]);
+            form.setValue("documentationFiles", [
+              ...(form.getValues("documentationFiles") || []),
+              ...files,
+            ]);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  };
+
+  const removeFile = (index: number) => {
+    setFilePreviews((prev) => prev.filter((_, i) => i !== index));
+    const currentFiles = form.getValues("documentationFiles") || [];
+    form.setValue(
+      "documentationFiles",
+      currentFiles.filter((_, i) => i !== index)
+    );
+  };
+
+  const onSubmit = (values: z.infer<typeof eventSchema>) => {
     startTransition(async () => {
       await createEvent({
         ...values,
@@ -59,24 +98,6 @@ export default function EventPopover({
       onClose();
     });
   };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      form.setValue("documentationFile", file);
-      // Create preview if it's an image
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setFilePreview(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        setFilePreview(null);
-      }
-    }
-  };
-
 
   return (
     <AnimatePresence>
@@ -95,9 +116,10 @@ export default function EventPopover({
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-md px-4"
           >
-            <Card className="w-full max-w-md dark:bg-card">
-              <CardHeader className="flex flex-row items-center justify-between border-b p-4 dark:border-white  ">
+            <Card className="w-full dark:bg-card">
+              <CardHeader className="flex flex-row items-center justify-between border-b p-4 dark:border-white">
                 <CardTitle className="text-lg font-semibold">
                   Create Event
                 </CardTitle>
@@ -117,129 +139,142 @@ export default function EventPopover({
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-4"
                   >
-                    <motion.div
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      <FormField
-                        control={form.control}
-                        name="title"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input
-                                placeholder="Nama Event"
-                                {...field}
-                                className="my-4 rounded-none border-0 border-b text-2xl focus-visible:border-b-2 focus-visible:border-b-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent dark:text-white dark:placeholder-gray-400"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </motion.div>
+                    {/* Title Field */}
+                    <FormField
+                      control={form.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="Nama Event"
+                              {...field}
+                              className="my-4 rounded-none border-0 border-b text-2xl focus-visible:border-b-2 focus-visible:border-b-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent dark:text-white dark:placeholder-gray-400"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2 }}
-                      className="flex items-center space-x-3 dark:text-gray-300"
-                    >
+                    {/* Date and Time */}
+                    <div className="flex items-center space-x-3 dark:text-gray-300">
                       <IoMdCalendar className="size-5 text-slate-600 dark:text-slate-400" />
                       <div className="flex items-center space-x-3 text-sm">
                         <p>{dayjs(date).format("dddd, MMMM D")}</p>
-                        <div className="flex items-center space-x-2">
-                          <Input
-                            disabled
-                            value={selectedTime}
-                            onChange={(e) => setSelectedTime(e.target.value)}
-                            className="w-24 border-0 bg-transparent p-0 focus-visible:ring-0"
-                          />
-                        </div>
+                        <Input
+                          type="time"
+                          value={selectedTime}
+                          onChange={(e) => setSelectedTime(e.target.value)}
+                          className="w-24 border-0 bg-transparent p-0 focus-visible:ring-0"
+                        />
                       </div>
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 }}
-                    >
-                      <FormField
-                        control={form.control}
-                        name="documentationUrl"
-                        render={({ field }) => (
-                          <FormItem>
+                    {/* Location Field */}
+                    <FormField
+                      control={form.control}
+                      name="location"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center space-x-3">
+                            <MapPin className="size-5 text-slate-600 dark:text-slate-400" />
+                            <FormControl>
+                              <Input placeholder="Lokasi" {...field} />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Documentation URL */}
+                    <FormField
+                      control={form.control}
+                      name="documentationUrl"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center space-x-3">
+                            <HiOutlineLink className="size-5 text-slate-600 dark:text-slate-400" />
+                            <FormControl>
+                              <Input placeholder="Link dokumentasi" {...field} />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Description */}
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center space-x-3">
+                            <HiOutlineMenuAlt2 className="size-5 text-slate-600 dark:text-slate-400" />
+                            <FormControl>
+                              <Textarea placeholder="Deskripsi" {...field} />
+                            </FormControl>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* File Upload */}
+                    <FormField
+                      control={form.control}
+                      name="documentationFiles"
+                      render={({}) => (
+                        <FormItem>
+                          <div className="space-y-4">
                             <div className="flex items-center space-x-3">
-                              <HiOutlineLink className="size-5 text-slate-600 dark:text-slate-400" />
+                              <Upload className="size-5 text-slate-600 dark:text-slate-400" />
                               <FormControl>
                                 <Input
-                                  placeholder="Link dokumentasi"
-                                  {...field}
+                                  type="file"
+                                  multiple
+                                  accept="image/*"
+                                  onChange={handleFileChange}
+                                  className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-200"
                                 />
                               </FormControl>
                             </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </motion.div>
 
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 }}
-                    >
-                      <FormField
-                        control={form.control}
-                        name="description"
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex items-center space-x-3">
-                              <HiOutlineMenuAlt2 className="size-5 text-slate-600 dark:text-slate-400" />
-                              <FormControl>
-                                <Textarea placeholder="Deskripsi" {...field} />
-                              </FormControl>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 }}
-                    >
-                      <FormField
-                        control={form.control}
-                        name="documentationFile"
-                        render={({ field }) => (
-                          <FormItem>
-                            <div className="flex items-center space-x-3">
-                              <HiOutlineMenuAlt2 className="size-5 text-slate-600 dark:text-slate-400" />
-                              <FormControl>
-                                <div className="flex items-center space-x-3">
-                                  <Input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    onChange={handleFileChange}
-                                    hidden
-                                  />
-                                </div>
-                              </FormControl>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </motion.div>
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.5 }}
-                      className="flex justify-end"
-                    >
+                            {/* Image Previews */}
+                            {filePreviews.length > 0 && (
+                            <ScrollArea className="h-48">
+                              <div className="grid grid-cols-2 gap-4 mt-4">
+                                {filePreviews.map((preview, index) => (
+                                  <div key={index} className="relative group">
+                                    <Image
+                                      width={200}
+                                      height={200}
+                                      src={preview.preview}
+                                      alt={`Preview ${index + 1}`}
+                                      className="w-full h-32 object-cover rounded-lg"
+                                      />
+                                    <button
+                                      type="button"
+                                      onClick={() => removeFile(index)}
+                                      className="absolute top-2 right-2 p-1 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                      >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </ScrollArea>
+                            )}
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    {/* Submit Button */}
+                    <div className="flex justify-end">
                       <Button
                         type="submit"
                         variant="default"
@@ -247,9 +282,13 @@ export default function EventPopover({
                         className="w-full"
                         disabled={isPending}
                       >
-                        {isPending ? "Creating..." : "Create Event"}
+                        {isPending ? (
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                        ) : (
+                          "Tambahkan Event"
+                        )}
                       </Button>
-                    </motion.div>
+                    </div>
                   </form>
                 </Form>
               </CardContent>
