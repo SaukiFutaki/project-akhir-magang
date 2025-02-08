@@ -6,7 +6,14 @@ import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import { Roboto } from "next/font/google";
 import Image from "next/image";
 import { Button } from "../ui/button";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 
+
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Jakarta");
 const roboto = Roboto({
   weight: "400",
   subsets: ["latin"],
@@ -14,7 +21,7 @@ const roboto = Roboto({
 
 
 export default function LeftSide() {
-  const todayDate = dayjs();
+  const todayDate = dayjs().tz("Asia/Jakarta");
   const { userSelectedDate, setDate, setMonth, selectedMonthIndex } =
     useDateStore();
   const { selectedView } = useViewStore();
