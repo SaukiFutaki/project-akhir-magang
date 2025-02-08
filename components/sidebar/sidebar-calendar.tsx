@@ -16,10 +16,22 @@ export default function SideBarCalendar() {
     userSelectedDate,
   } = useDateStore();
 
-  const weeksOfMonth = getWeeks(selectedMonthIndex);
+  const today = dayjs();
+
   const handleDayClick = (date: dayjs.Dayjs) => {
     setDate(date);
   };
+
+  const weeksOfMonth = getWeeks(selectedMonthIndex);
+
+  const isDaySelected = (day: dayjs.Dayjs) => {
+    return day.format("YYYY-MM-DD") === userSelectedDate.format("YYYY-MM-DD");
+  };
+
+  const isToday = (day: dayjs.Dayjs) => {
+    return day.format("YYYY-MM-DD") === today.format("YYYY-MM-DD");
+  };
+
   return (
     <div className="my-6 p-2 font-mono">
       <div className="flex items-center justify-between">
@@ -57,7 +69,7 @@ export default function SideBarCalendar() {
 
       {/* Main Content: Weeks and Days */}
       <div className="mt-2 grid grid-cols-[auto_1fr] text-xs">
-        {/* Week Number  column */}
+        {/* Week Number column */}
         <div className="grid w-6 grid-rows-5 gap-1 gap-y-3 rounded-sm bg-gray-100 p-1 dark:bg-[#131314]">
           {weeksOfMonth.slice(0, 5).map((week, i) => (
             <span key={i} className="flex h-5 w-5 items-center justify-center">
@@ -67,7 +79,6 @@ export default function SideBarCalendar() {
         </div>
 
         {/* Dates grid */}
-
         <div className="grid grid-cols-7 grid-rows-5 gap-1 gap-y-3 rounded-sm p-1 text-xs">
           {twoDMonthArray.map((row, i) => (
             <Fragment key={i}>
@@ -76,12 +87,10 @@ export default function SideBarCalendar() {
                   onClick={() => handleDayClick(day)}
                   key={index}
                   className={cn(
-                    "flex h-5 w-5 items-center justify-center rounded-full",
-                    day.format("DD-MM-YY") === dayjs().format("DD-MM-YY")
-                      ? "bg-blue-600 text-white"
-                      : day.format("DD-MM-YY") ===
-                          userSelectedDate.format("DD-MM-YY") &&
-                          "bg-gray-300 text-black"
+                    "flex h-5 w-5 items-center justify-center rounded-full transition-colors",
+                    isToday(day) && "bg-blue-600 text-white hover:bg-blue-700",
+                    isDaySelected(day) && !isToday(day) && "bg-gray-300 text-black hover:bg-gray-400",
+                    !isToday(day) && !isDaySelected(day) && "hover:bg-gray-200"
                   )}
                 >
                   <span>{day.format("D")}</span>
