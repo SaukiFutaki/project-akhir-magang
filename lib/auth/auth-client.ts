@@ -2,7 +2,7 @@ import { createAuthClient } from "better-auth/react"
 import { adminClient } from "better-auth/client/plugins"
 
 export const authClient = createAuthClient({
-    baseURL: "http://localhost:3000", // the base url of your auth server
+    baseURL: "https://project-akhir-magang.vercel.app/", // the base url of your auth server
     plugins : [
         adminClient()
     ]
