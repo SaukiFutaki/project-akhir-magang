@@ -48,7 +48,7 @@ export default async function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <SignInForm email="utaki.sauki19@gmail.com" />
+                <SignInForm email="dpubmckjateng@gmail.com" />
               </CardContent>
             </Card>
           </TabsContent>
@@ -61,7 +61,7 @@ export default async function Home() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <SignInForm email="" />
+                <SignInForm email="user@gmail.com" />
               </CardContent>
             </Card>
           </TabsContent>

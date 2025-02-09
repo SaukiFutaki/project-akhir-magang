@@ -120,7 +120,7 @@ export default function SignUpForm() {
           )}
         />
 
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled>
           {isPending ? "Please wait..." : "Submit"}
         </Button>
       </form>
