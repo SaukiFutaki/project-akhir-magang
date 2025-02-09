@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { deleteEvent } from "@/lib/actions";
-import { Months } from "@/lib/constant";
+import { borderLeftColors, eventColors, Months } from "@/lib/constant";
 import { useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { CalendarEventType } from "@/types";
@@ -41,7 +41,9 @@ import {
   Clock,
   Diff,
   ExternalLink,
+  FileText,
   ImageIcon,
+  Link2,
   MapPin,
   Trash2,
 } from "lucide-react";
@@ -54,6 +56,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Badge } from "./ui/badge";
+import { getEventColor } from "@/lib/helper";
 
 const WEEKDAYS = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
 
@@ -154,6 +157,7 @@ export default function YearView({ role }: { role: string }) {
     router.refresh();
   };
 
+ 
   return (
     <div>
       <Separator />
@@ -254,10 +258,12 @@ export default function YearView({ role }: { role: string }) {
             ) : (
               <ScrollArea className="h-[calc(100vh-100px)] pr-4 pb-10 ">
                 <div className="space-y-4 mb-1">
-                  {selectedDateEvents.map((event) => (
+                  {selectedDateEvents.map((event, index) => (
                     <Card
                       key={event.id}
-                      className="border-l-4 border-l-blue-600 bg-card overflow-hidden group "
+                      className={`border-l-4  bg-card overflow-hidden group  ${getEventColor(
+                        event.id
+                      )}`}
                     >
                       <CardHeader className="space-y-3 pb-3 bg-background">
                         <div className="flex justify-between items-start gap-4">
@@ -312,30 +318,38 @@ export default function YearView({ role }: { role: string }) {
                         {/* Location Section */}
                         <div className="space-y-4">
                           {/* Location Section */}
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-center gap-2">
                             <Badge
-                              variant="secondary"
-                              className="w-24 flex justify-center shrink-0"
+                              variant={
+                                event.location ? "secondary" : "destructive"
+                              }
+                              className="w-10 flex justify-start shrink-0 "
                             >
-                              Lokasi
+                              <MapPin />
                             </Badge>
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <MapPin className="h-4 w-4" />
-                              <span className="text-sm">
-                                {event.location || "Tidak dicantumkan"}
-                              </span>
-                            </div>
+                            {event.location ? (
+                              <p className="text-sm text-muted-foreground break-words">
+                                {event.location}
+                              </p>
+                            ) : (
+                              <div className="flex items-center gap-2 text-destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <span className="text-sm">
+                                  Tidak ada lokasi
+                                </span>
+                              </div>
+                            )}
                           </div>
 
                           {/* Description Section */}
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-center gap-2">
                             <Badge
                               variant={
                                 event.description ? "secondary" : "destructive"
                               }
-                              className="w-24 flex justify-center shrink-0"
+                              className="w-10 flex justify-start shrink-0"
                             >
-                              Deskripsi
+                              <FileText />
                             </Badge>
                             {event.description ? (
                               <p className="text-sm text-muted-foreground break-words">
@@ -352,16 +366,16 @@ export default function YearView({ role }: { role: string }) {
                           </div>
 
                           {/* Documentation Section */}
-                          <div className="flex items-start gap-2">
+                          <div className="flex items-center gap-2">
                             <Badge
                               variant={
                                 event.documentationUrl
                                   ? "secondary"
                                   : "destructive"
                               }
-                              className="w-24 flex justify-center shrink-0"
+                              className="w-10 flex justify-center shrink-0"
                             >
-                              Dokumentasi
+                              <Link2 />
                             </Badge>
                             {event.documentationUrl ? (
                               <Link
