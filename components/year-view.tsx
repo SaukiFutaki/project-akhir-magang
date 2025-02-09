@@ -35,7 +35,16 @@ import { useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { CalendarEventType } from "@/types";
 import dayjs from "dayjs";
-import { CalendarIcon, Clock, Diff, MapPin, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  CalendarIcon,
+  Clock,
+  Diff,
+  ExternalLink,
+  ImageIcon,
+  MapPin,
+  Trash2,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -44,6 +53,7 @@ import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
+import { Badge } from "./ui/badge";
 
 const WEEKDAYS = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
 
@@ -242,12 +252,12 @@ export default function YearView({ role }: { role: string }) {
                 Tidak ada event pada tanggal ini.
               </div>
             ) : (
-              <ScrollArea className="h-[calc(100vh-100px)] pr-4">
+              <ScrollArea className="h-[calc(100vh-100px)] pr-4 ">
                 <div className="space-y-4">
                   {selectedDateEvents.map((event) => (
                     <Card
                       key={event.id}
-                      className="border-l-4 border-l-blue-600 bg-card overflow-hidden group"
+                      className="border-l-4 border-l-blue-600 bg-card overflow-hidden group "
                     >
                       <CardHeader className="space-y-3 pb-3 bg-background">
                         <div className="flex justify-between items-start gap-4">
@@ -270,7 +280,7 @@ export default function YearView({ role }: { role: string }) {
                                   size="icon"
                                   className="opacity-0 group-hover:opacity-100 transition-opacity outline-dashed"
                                 >
-                                  <Trash2 className="w-4 h-4 text-destructive" />
+                                  <Trash2 className="w-4 h-4 text-red-500" />
                                 </Button>
                               </AlertDialogTrigger>
                               <AlertDialogContent>
@@ -297,81 +307,137 @@ export default function YearView({ role }: { role: string }) {
                             </AlertDialog>
                           </div>
                         </div>
-
-                        {event.location && (
-                          <div className="flex items-center gap-2 text-muted-foreground">
-                            <MapPin className="h-4 w-4" />
-                            <span className="text-sm">{event.location}</span>
-                          </div>
-                        )}
                       </CardHeader>
-                      {event.description && (
-                        <CardContent className="pt-2 bg-background">
-                          <p className="text-sm text-muted-foreground break-words">
-                            {event.description}
-                          </p>
-                          <Link
-                            href={event.documentationUrl || "#"}
-                            passHref
-                            className="text-sm text-blue-600 underline"
-                          >
-                            Link Dokumentasi
-                          </Link>
+                      <CardContent className="pt-2 bg-background space-y-4">
+                        {/* Location Section */}
+                        <div className="space-y-4">
+                          {/* Location Section */}
+                          <div className="flex items-start gap-2">
+                            <Badge
+                              variant="secondary"
+                              className="w-24 flex justify-center shrink-0"
+                            >
+                              Lokasi
+                            </Badge>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <MapPin className="h-4 w-4" />
+                              <span className="text-sm">
+                                {event.location || "Tidak dicantumkan"}
+                              </span>
+                            </div>
+                          </div>
 
-                          {event.documentationFiles &&
-                            event.documentationFiles.length > 0 && (
-                              <Accordion
-                                type="single"
-                                collapsible
-                                className="w-full"
-                              >
-                                <AccordionItem value="images">
-                                  <AccordionTrigger className="text-sm">
-                                    <div className="flex items-center gap-2">
-                                      Preview gambar
-                                    </div>
-                                  </AccordionTrigger>
-                                  <AccordionContent>
-                                    <div className="grid grid-flow-col grid-rows-2 gap-2">
-                                      {event.documentationFiles.map(
-                                        (file, index) => (
-                                          <Dialog key={index}>
-                                            <DialogTrigger asChild>
-                                              <div className="relative aspect-video cursor-pointer hover:opacity-90 transition-opacity">
-                                                <Image
-                                                  width={200}
-                                                  height={200}
-                                                  src={file.url}
-                                                  alt={`Documentation ${
-                                                    index + 1
-                                                  }`}
-                                                  className="rounded-md object-cover w-full h-full border-white border-2"
-                                                />
-                                              </div>
-                                            </DialogTrigger>
-                                            <DialogTitle></DialogTitle>
-                                            <DialogContent className="max-w-3xl">
-                                              <div className="relative aspect-video">
-                                                <Image
-                                                  fill
-                                                  src={file.url}
-                                                  alt={`Documentation ${
-                                                    index + 1
-                                                  }`}
-                                                  className="rounded-md object-contain"
-                                                />
-                                              </div>
-                                            </DialogContent>
-                                          </Dialog>
-                                        )
-                                      )}
-                                    </div>
-                                  </AccordionContent>
-                                </AccordionItem>
-                              </Accordion>
+                          {/* Description Section */}
+                          <div className="flex items-start gap-2">
+                            <Badge
+                              variant={
+                                event.description ? "secondary" : "destructive"
+                              }
+                              className="w-24 flex justify-center shrink-0"
+                            >
+                              Deskripsi
+                            </Badge>
+                            {event.description ? (
+                              <p className="text-sm text-muted-foreground break-words">
+                                {event.description}
+                              </p>
+                            ) : (
+                              <div className="flex items-center gap-2 text-destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <span className="text-sm">
+                                  Tidak ada deskripsi tersedia
+                                </span>
+                              </div>
                             )}
-                        </CardContent>
-                      )}
+                          </div>
+
+                          {/* Documentation Section */}
+                          <div className="flex items-start gap-2">
+                            <Badge
+                              variant={
+                                event.documentationUrl
+                                  ? "secondary"
+                                  : "destructive"
+                              }
+                              className="w-24 flex justify-center shrink-0"
+                            >
+                              Dokumentasi
+                            </Badge>
+                            {event.documentationUrl ? (
+                              <Link
+                                href={event.documentationUrl}
+                                className="flex items-center gap-1.5 text-sm text-blue-500 group"
+                              >
+                                <span className="group-hover:underline">
+                                  Lihat Dokumentasi
+                                </span>
+                                <ExternalLink className="h-4 w-4" />
+                              </Link>
+                            ) : (
+                              <div className="flex items-center gap-2 text-destructive">
+                                <AlertCircle className="h-4 w-4" />
+                                <span className="text-sm">
+                                  Tidak ada url dokumentasi 
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Documentation Files Section */}
+                        {event.documentationFiles &&
+                          event.documentationFiles.length > 0 && (
+                            <Accordion
+                              type="single"
+                              collapsible
+                              className="w-full"
+                            >
+                              <AccordionItem value="images">
+                                <AccordionTrigger className="text-sm">
+                                  <div className="flex items-center gap-2">
+                                    <ImageIcon className="h-4 w-4" />
+                                    <span>Preview gambar</span>
+                                  </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                    {event.documentationFiles.map(
+                                      (file, index) => (
+                                        <Dialog key={index}>
+                                          <DialogTrigger asChild>
+                                            <div className="relative aspect-video cursor-pointer group">
+                                              <Image
+                                                width={200}
+                                                height={200}
+                                                src={file.url}
+                                                alt={`Documentation ${
+                                                  index + 1
+                                                }`}
+                                                className="rounded-md object-cover w-full h-full border-2 border-white transition-all group-hover:opacity-90 group-hover:scale-[1.02]"
+                                              />
+                                            </div>
+                                          </DialogTrigger>
+                                          <DialogContent className="max-w-3xl">
+                                            <div className="relative aspect-video">
+                                              <Image
+                                                fill
+                                                src={file.url}
+                                                alt={`Documentation ${
+                                                  index + 1
+                                                }`}
+                                                className="rounded-md object-contain"
+                                              />
+                                            </div>
+                                          </DialogContent>
+                                        </Dialog>
+                                      )
+                                    )}
+                                  </div>
+                                </AccordionContent>
+                              </AccordionItem>
+                            </Accordion>
+                          )}
+                      </CardContent>
                     </Card>
                   ))}
                 </div>
