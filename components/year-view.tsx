@@ -47,7 +47,7 @@ import { Separator } from "./ui/separator";
 
 const WEEKDAYS = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
 
-export default function YearView() {
+export default function YearView({role} : {role: string}) {
   const { userSelectedDate, setDate } = useDateStore();
   const currentYear = userSelectedDate.year();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
@@ -224,6 +224,7 @@ export default function YearView() {
                 setIsSheetOpen(false);
               }}
               className="flex items-center gap-1 font-bold"
+              disabled={role === "user"}
             >
               <Diff className="w-4 h-4" />
               Tambah Event

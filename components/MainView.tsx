@@ -14,9 +14,10 @@ import YearView from "./year-view";
 
 interface MainViewProps {
   events: CalendarEventType[];
+  role : string;
 }
 
-export default function MainView({ events }: MainViewProps) {
+export default function MainView({ events,role }: MainViewProps) {
   const { selectedView } = useViewStore();
   const {
     isPopoverOpen,
@@ -41,6 +42,7 @@ export default function MainView({ events }: MainViewProps) {
 
     setEvents(mappedEvents);
   }, [events, setEvents]);
+
   return (
     <div className="flex">
       {/* Sidebar */}
@@ -88,7 +90,9 @@ export default function MainView({ events }: MainViewProps) {
               exit={{ x: "-100%", opacity: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <YearView />
+              <YearView
+                role={role}
+              />
             </motion.div>
           )}
         </AnimatePresence>
