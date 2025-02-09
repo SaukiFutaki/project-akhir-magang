@@ -47,7 +47,7 @@ import { Separator } from "./ui/separator";
 
 const WEEKDAYS = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
 
-export default function YearView({role} : {role: string}) {
+export default function YearView({ role }: { role: string }) {
   const { userSelectedDate, setDate } = useDateStore();
   const currentYear = userSelectedDate.year();
   const [isSheetOpen, setIsSheetOpen] = React.useState(false);
@@ -189,7 +189,12 @@ export default function YearView({role} : {role: string}) {
                           "bg-muted-foreground/20"
                       )}
                     >
-                      <span className="text-[0.62rem] text-muted-foreground xl:text-[0.75rem] font-bold">
+                      <span
+                        className={cn(
+                          "text-[0.62rem] text-muted-foreground xl:text-[0.75rem] font-bold",
+                          isCurrentDay(item.date) && "text-white"
+                        )}
+                      >
                         {item.date.date()}
                       </span>
                       {/* Event Indicator */}
