@@ -287,6 +287,7 @@ export default function YearView({ role }: { role: string }) {
                                   <AlertDialogCancel>Batal</AlertDialogCancel>
                                   <AlertDialogAction
                                     onClick={() => del(event)}
+                                    disabled={role === "user"}
                                     className="bg-destructive hover:bg-destructive/90 text-white"
                                   >
                                     Hapus
@@ -331,7 +332,7 @@ export default function YearView({ role }: { role: string }) {
                                     </div>
                                   </AccordionTrigger>
                                   <AccordionContent>
-                                    <div className="grid grid-cols-2 gap-2 pt-2">
+                                    <div className="grid grid-flow-col grid-rows-2 gap-2">
                                       {event.documentationFiles.map(
                                         (file, index) => (
                                           <Dialog key={index}>
@@ -344,7 +345,7 @@ export default function YearView({ role }: { role: string }) {
                                                   alt={`Documentation ${
                                                     index + 1
                                                   }`}
-                                                  className="rounded-md object-cover w-full h-full"
+                                                  className="rounded-md object-cover w-full h-full border-white border-2"
                                                 />
                                               </div>
                                             </DialogTrigger>

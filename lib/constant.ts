@@ -1,5 +1,5 @@
-export const Days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-export const Months = [
+ const Days = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+ const Months = [
   "Januari",
   "Februari",
   "Maret",
@@ -13,3 +13,8 @@ export const Months = [
   "November",
   "Desember",
 ];
+
+const MAX_FILES = 4;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB in bytes
+
+export { MAX_FILES, MAX_FILE_SIZE, Days, Months };

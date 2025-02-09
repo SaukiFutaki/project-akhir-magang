@@ -1,13 +1,12 @@
 "use server";
 
 import { auth } from "@/auth";
+import { eventSchema, FormEditEventValues, FormEventValues } from "@/schemas/events.schema";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import prisma from "./prisma";
-import { z } from "zod";
-import { FormEditEventValues, FormEventValues } from "@/schemas/events.schema";
-import { supabase } from "./supabase";
 import { v4 as uuidv4 } from 'uuid';
+import prisma from "./prisma";
+import { supabase } from "./supabase";
 
 export async function signOut() {
   await auth.api.signOut({
@@ -16,15 +15,6 @@ export async function signOut() {
   redirect("/");
 }
 
- const eventSchema = z.object({
-  title: z.string().min(1, { message: "Title is required" }),
-  description: z.string().optional(),
-  documentationUrl: z.string().optional(),
-  documentationFiles: z.array(z.any()).optional(),
-  location: z.string().optional(),
-  date : z.date(),
-    time: z.string(),
-});
 
 // Upload multiple files and return array of URLs
 async function uploadFiles(files: File[], bucket: string = 'file-docs') {

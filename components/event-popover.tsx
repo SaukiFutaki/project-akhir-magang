@@ -18,6 +18,7 @@ import { eventSchema } from "@/schemas/events.schema";
 import * as z from "zod";
 import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
+import { MAX_FILE_SIZE, MAX_FILES } from "@/lib/constant";
 
 interface EventPopoverProps {
   isOpen: boolean;
@@ -56,26 +57,57 @@ export default function EventPopover({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
+    const currentFiles = form.getValues("documentationFiles") || [];
+    const totalFiles = currentFiles.length + files.length;
+
+    if (totalFiles > MAX_FILES) {
+      form.setError("documentationFiles", {
+        type: "manual",
+        message: `Maximum ${MAX_FILES} images allowed`,
+      });
+      e.target.value = "";
+      return;
+    }
+
+    const invalidFiles = files.filter((file) => {
+      if (file.size > MAX_FILE_SIZE) {
+        form.setError("documentationFiles", {
+          type: "manual",
+          message: "Each file must be less than 10MB",
+        });
+        return true;
+      }
+      if (!file.type.startsWith("image/")) {
+        form.setError("documentationFiles", {
+          type: "manual",
+          message: "Only image files are allowed",
+        });
+        return true;
+      }
+      return false;
+    });
+
+    if (invalidFiles.length > 0) {
+      e.target.value = "";
+      return;
+    }
+
     const newPreviews: FilePreview[] = [];
 
     files.forEach((file) => {
-      if (file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          newPreviews.push({
-            file,
-            preview: reader.result as string,
-          });
-          if (newPreviews.length === files.length) {
-            setFilePreviews((prev) => [...prev, ...newPreviews]);
-            form.setValue("documentationFiles", [
-              ...(form.getValues("documentationFiles") || []),
-              ...files,
-            ]);
-          }
-        };
-        reader.readAsDataURL(file);
-      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push({
+          file,
+          preview: reader.result as string,
+        });
+        if (newPreviews.length === files.length) {
+          setFilePreviews((prev) => [...prev, ...newPreviews]);
+          form.setValue("documentationFiles", [...currentFiles, ...files]);
+          form.clearErrors("documentationFiles");
+        }
+      };
+      reader.readAsDataURL(file);
     });
   };
 
@@ -149,6 +181,7 @@ export default function EventPopover({
                             <Input
                               placeholder="Nama Event"
                               {...field}
+                              autoComplete="off"
                               className="my-4 rounded-none border-0 border-b text-2xl focus-visible:border-b-2 focus-visible:border-b-blue-600 focus-visible:ring-0 focus-visible:ring-offset-0 dark:bg-transparent dark:text-white dark:placeholder-gray-400"
                             />
                           </FormControl>
@@ -197,7 +230,11 @@ export default function EventPopover({
                           <div className="flex items-center space-x-3">
                             <HiOutlineLink className="size-5 text-slate-600 dark:text-slate-400" />
                             <FormControl>
-                              <Input placeholder="Link dokumentasi" {...field} />
+                              <Input
+                                placeholder="Link dokumentasi"
+                                {...field}
+                                autoComplete="off"
+                              />
                             </FormControl>
                           </div>
                           <FormMessage />
@@ -214,7 +251,11 @@ export default function EventPopover({
                           <div className="flex items-center space-x-3">
                             <HiOutlineMenuAlt2 className="size-5 text-slate-600 dark:text-slate-400" />
                             <FormControl>
-                              <Textarea placeholder="Deskripsi" {...field} />
+                              <Textarea
+                                placeholder="Deskripsi"
+                                {...field}
+                                autoComplete="off"
+                              />
                             </FormControl>
                           </div>
                           <FormMessage />
@@ -241,31 +282,34 @@ export default function EventPopover({
                                 />
                               </FormControl>
                             </div>
+                            <p className="text-xs text-slate-500">
+                             maksimal upload {MAX_FILES} gambar dengan ukuran maksimal {MAX_FILE_SIZE / 1024 / 1024}MB
+                            </p>
 
                             {/* Image Previews */}
                             {filePreviews.length > 0 && (
-                            <ScrollArea className="h-48">
-                              <div className="grid grid-cols-2 gap-4 mt-4">
-                                {filePreviews.map((preview, index) => (
-                                  <div key={index} className="relative group">
-                                    <Image
-                                      width={200}
-                                      height={200}
-                                      src={preview.preview}
-                                      alt={`Preview ${index + 1}`}
-                                      className="w-full h-32 object-cover rounded-lg"
+                              <ScrollArea className="h-48">
+                                <div className="grid grid-cols-2 gap-4 mt-4">
+                                  {filePreviews.map((preview, index) => (
+                                    <div key={index} className="relative group">
+                                      <Image
+                                        width={200}
+                                        height={200}
+                                        src={preview.preview}
+                                        alt={`Preview ${index + 1}`}
+                                        className="w-full h-32 object-cover rounded-lg"
                                       />
-                                    <button
-                                      type="button"
-                                      onClick={() => removeFile(index)}
-                                      className="absolute top-2 right-2 p-1 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                                      <button
+                                        type="button"
+                                        onClick={() => removeFile(index)}
+                                        className="absolute top-2 right-2 p-1 bg-red-500 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
                                       >
-                                      <X className="w-4 h-4" />
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
-                            </ScrollArea>
+                                        <X className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </ScrollArea>
                             )}
                           </div>
                           <FormMessage />
