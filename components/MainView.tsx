@@ -99,6 +99,7 @@ export default function MainView({ events,role }: MainViewProps) {
 
         {isPopoverOpen && (
           <EventPopover
+          role={role}
             isOpen={isPopoverOpen}
             onClose={closePopover}
             date={userSelectedDate.format("YYYY-MM-DD")}
