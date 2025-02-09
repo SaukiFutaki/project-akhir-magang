@@ -27,7 +27,8 @@ export default async function Home() {
         <Image
           src="/sign-in.jpg"
           alt="Image"
-          className="w-full object-cover  "
+          className="w-full object-cover"
+          
           fill
         />
       </section>
