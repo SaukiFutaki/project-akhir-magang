@@ -252,8 +252,8 @@ export default function YearView({ role }: { role: string }) {
                 Tidak ada event pada tanggal ini.
               </div>
             ) : (
-              <ScrollArea className="h-[calc(100vh-100px)] pr-4 ">
-                <div className="space-y-4">
+              <ScrollArea className="h-[calc(100vh-100px)] pr-4 pb-10 ">
+                <div className="space-y-4 mb-1">
                   {selectedDateEvents.map((event) => (
                     <Card
                       key={event.id}
@@ -345,7 +345,7 @@ export default function YearView({ role }: { role: string }) {
                               <div className="flex items-center gap-2 text-destructive">
                                 <AlertCircle className="h-4 w-4" />
                                 <span className="text-sm">
-                                  Tidak ada deskripsi tersedia
+                                  Tidak ada deskripsi
                                 </span>
                               </div>
                             )}
@@ -377,7 +377,7 @@ export default function YearView({ role }: { role: string }) {
                               <div className="flex items-center gap-2 text-destructive">
                                 <AlertCircle className="h-4 w-4" />
                                 <span className="text-sm">
-                                  Tidak ada url dokumentasi 
+                                  Tidak ada url dokumentasi
                                 </span>
                               </div>
                             )}
