@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { deleteEvent } from "@/lib/actions";
-import { borderLeftColors, eventColors, Months } from "@/lib/constant";
+import { borderLeftColors, Months } from "@/lib/constant";
 import { useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { CalendarEventType } from "@/types";
@@ -56,9 +56,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Badge } from "./ui/badge";
-import { getEventColor } from "@/lib/helper";
 
 const WEEKDAYS = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
+const eventColors = [
+  "border-l-blue-600",
+  "border-l-purple-500",
+  "border-l-pink-500",
+  "border-l-orange-500",
+  "border-l-teal-500",
+  "border-l-indigo-500",
+  "border-l-rose-500",
+  "border-l-emerald-500",
+  "border-l-cyan-500",
+  "border-l-violet-500",
+];
 
 export default function YearView({ role }: { role: string }) {
   const { userSelectedDate, setDate } = useDateStore();
@@ -157,7 +168,14 @@ export default function YearView({ role }: { role: string }) {
     router.refresh();
   };
 
- 
+  const getEventColor = (eventId: string) => {
+    const colorIndex =
+      eventId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+      eventColors.length;
+
+    return eventColors[colorIndex];
+  };
+
   return (
     <div>
       <Separator />
