@@ -24,6 +24,7 @@ interface EventPopoverProps {
   isOpen: boolean;
   onClose: () => void;
   date: string;
+  role : string;
 }
 
 interface FilePreview {
@@ -35,6 +36,7 @@ export default function EventPopover({
   isOpen,
   onClose,
   date,
+  role,
 }: EventPopoverProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -324,7 +326,7 @@ export default function EventPopover({
                         variant="default"
                         size="lg"
                         className="w-full"
-                        disabled={isPending}
+                        disabled={isPending || role === "user"}
                       >
                         {isPending ? (
                           <Loader2 className="w-6 h-6 animate-spin" />
