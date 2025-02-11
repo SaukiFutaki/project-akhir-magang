@@ -3,7 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./lib/prisma";
 import { admin } from "better-auth/plugins";
 
-export const auth = betterAuth({
+export const auth  = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -11,9 +11,8 @@ export const auth = betterAuth({
     enabled: true,
   },
   session: {
-    
-    expiresIn:  60 * 60 * 24,  // 24 hours
-    updateAge: 60 * 60  *24 , // 24 hours
+    expiresIn:  60 * 60 * 12 ,   
+    updateAge: 60 * 60  * 12 , 
   },
   plugins: [admin()],
 });
