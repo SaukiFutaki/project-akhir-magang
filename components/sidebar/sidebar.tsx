@@ -1,3 +1,4 @@
+"use client"
 import { cn } from "@/lib/utils";
 import SidebarCalendar from "./sidebar-calendar";
 import { useToggleSideBarStore } from "@/lib/store";

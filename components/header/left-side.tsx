@@ -1,13 +1,15 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useDateStore, useToggleSideBarStore, useViewStore } from "@/lib/store";
 import dayjs from "dayjs";
-import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Roboto } from "next/font/google";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
+import Link from "next/link";
 
 
 
@@ -27,7 +29,7 @@ export default function LeftSide() {
   const { userSelectedDate, setDate, setMonth, selectedMonthIndex } =
     useDateStore();
   const { selectedView } = useViewStore();
-  const { setSideBarOpen } = useToggleSideBarStore();
+  // const { setSideBarOpen } = useToggleSideBarStore();
 
   const handleTodayClick = () => {
     switch (selectedView) {
@@ -109,23 +111,26 @@ export default function LeftSide() {
     <div className="flex items-center gap-3">
       {/* Sidebar Toggle and Calendar Icon */}
       <div className="hidden items-center lg:flex">
-        <Button
+        {/* <Button
           variant="ghost"
           className="rounded-full p-2"
           onClick={() => setSideBarOpen()}
         >
           <Menu className="size-6" />
-        </Button>
+        </Button> */}
         <Image
           src={`/calendar/calendar_${todayDate.date().toString()}.svg`}
           width={40}
           height={40}
           alt="icon"
         />
-      
+        <Link
+          href={"/dashboard"}
+        >
         <h1 className={`${roboto.className} text-xl font-bold mx-3`}>
           Kalender DPU BMCK
         </h1>
+        </Link>
       </div>
 
       {/* Today Button */}

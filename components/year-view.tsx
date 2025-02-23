@@ -180,7 +180,7 @@ export default function YearView({ role }: { role: string }) {
     <div>
       <Separator />
 
-      <ScrollArea className="h-[calc(100vh-10rem)]">
+      <ScrollArea className="h-[calc(100vh-5rem)]">
         <div className="grid grid-cols-4 gap-6 p-6">
           {Months.map((monthName, monthIndex) => (
             <div key={monthIndex} className="flex flex-col">

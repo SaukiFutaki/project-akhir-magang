@@ -18,6 +18,7 @@ import {
 import { useViewStore } from "@/lib/store";
 import { LogOut } from "lucide-react";
 import { ModeToggle } from "../dark-mode";
+import Link from "next/link";
 
 interface IRightSideProps {
   avatar?: string;
@@ -42,6 +43,11 @@ export default function RightSide({
 
   return (
     <div className="flex items-center space-x-4">
+      <Link href={"/dashboard/rekap"}>
+        <h1>
+          Rekap tahunan
+        </h1>
+      </Link>
       <ModeToggle />
       <Select value={selectedView} onValueChange={(v) => setView(v)}>
         <SelectTrigger className="w-24 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0">

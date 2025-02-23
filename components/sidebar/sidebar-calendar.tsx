@@ -1,11 +1,27 @@
+import { Card, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { getWeeks } from "@/lib/get-time";
-import { useDateStore } from "@/lib/store";
+import { useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
-import React, { Fragment } from "react";
+import { Clock, MapPin } from "lucide-react";
+import { Fragment } from "react";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 
 const WEEKDAYS = ["M", "S", "S", "R", "K", "J", "S"];
+
+const eventColors = [
+  "border-l-blue-600",
+  "border-l-purple-500",
+  "border-l-pink-500",
+  "border-l-orange-500",
+  "border-l-teal-500",
+  "border-l-indigo-500",
+  "border-l-rose-500",
+  "border-l-emerald-500",
+  "border-l-cyan-500",
+  "border-l-violet-500",
+];
 
 export default function SideBarCalendar() {
   const {
@@ -16,6 +32,7 @@ export default function SideBarCalendar() {
     userSelectedDate,
   } = useDateStore();
 
+  const {  events } = useEventStore();
   const today = dayjs();
 
   const handleDayClick = (date: dayjs.Dayjs) => {
@@ -32,8 +49,21 @@ export default function SideBarCalendar() {
     return day.format("YYYY-MM-DD") === today.format("YYYY-MM-DD");
   };
 
+  const getEventColor = (eventId: string) => {
+    const colorIndex =
+      eventId.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0) %
+      eventColors.length;
+    return eventColors[colorIndex];
+  };
+
+  // Filter events for current month
+  const currentMonthEvents = events.filter(
+    (event) => dayjs(event.date).month() === selectedMonthIndex
+  );
+
   return (
-    <div className="my-6 p-2 font-mono">
+    <div className="space-y-6">
+  <div className="my-6 p-2 font-mono">
       <div className="flex items-center justify-between">
         <h4 className="text-sm">
           {dayjs(new Date(dayjs().year(), selectedMonthIndex)).format(
@@ -100,6 +130,43 @@ export default function SideBarCalendar() {
           ))}
         </div>
       </div>
+    </div>
+
+      {/* Events Section */}
+      <ScrollArea className="h-[300px]">
+        <div className="space-y-2 px-2">
+          {currentMonthEvents.length === 0 ? (
+            <div className="text-center py-4 text-sm text-muted-foreground">
+              Tidak ada event pada bulan ini
+            </div>
+          ) : (
+            currentMonthEvents.map((event) => (
+              <Card
+                key={event.id}
+                className={cn("border-l-4", getEventColor(event.id))}
+              >
+                <CardContent className="p-4 space-y-2">
+                  <div className="flex justify-between items-start gap-2">
+                    <h3 className="font-medium text-sm">{event.title}</h3>
+                    <div className="flex items-center gap-2 text-muted-foreground shrink-0">
+                      <Clock className="w-3 h-3" />
+                      <span className="text-xs">
+                        {dayjs(event.date).format("DD MMM")} - {event.time}
+                      </span>
+                    </div>
+                  </div>
+                  {event.location && (
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <MapPin className="w-3 h-3" />
+                      <span className="text-xs">{event.location}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
 }

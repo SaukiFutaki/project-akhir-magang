@@ -11,22 +11,22 @@ import MonthView from "./month-view";
 import Sidebar from "./sidebar/sidebar";
 import WeekView from "./week-view";
 import YearView from "./year-view";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
 
 interface MainViewProps {
   events: CalendarEventType[];
-  role : string;
+  role: string;
 }
 
-export default function MainView({ events,role }: MainViewProps) {
+export default function MainView({ events, role }: MainViewProps) {
   const { selectedView } = useViewStore();
-  const {
-    isPopoverOpen,
-    closePopover,
-    setEvents,
-  } = useEventStore();
+  const { isPopoverOpen, closePopover, setEvents } = useEventStore();
 
   const { userSelectedDate } = useDateStore();
-
 
   useEffect(() => {
     const mappedEvents: CalendarEventType[] = events.map((event) => ({
@@ -45,75 +45,72 @@ export default function MainView({ events,role }: MainViewProps) {
 
   return (
     <div className="flex">
-      {/* Sidebar */}
-      <Sidebar />
-      <div className="w-full flex-1">
-        <AnimatePresence mode="wait">
-          {selectedView === "month" && (
-            <motion.div
-              key="month-view"
-              initial={{ x: "100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <MonthView />
-            </motion.div>
-          )}
-          {selectedView === "week" && (
-            <motion.div
-              key="week-view"
-              initial={{ x: "100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <WeekView />
-            </motion.div>
-          )}
-          {selectedView === "day" && (
-            <motion.div
-              key="day-view"
-              initial={{ x: "100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <DayView />
-            </motion.div>
-          )}
-          {selectedView === "year" && (
-            <motion.div
-              key="year-view"
-              initial={{ x: "100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <YearView
+      <ResizablePanelGroup direction="horizontal">
+        {/* Sidebar */}
+        <ResizablePanel defaultSize={15}>
+          <Sidebar />
+        </ResizablePanel>
+        <ResizableHandle withHandle />
+        <ResizablePanel defaultSize={75}>
+          <div className="w-full flex-1">
+            <AnimatePresence mode="wait">
+              {selectedView === "month" && (
+                <motion.div
+                  key="month-view"
+                  initial={{ x: "100%", opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: "-100%", opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <MonthView />
+                </motion.div>
+              )}
+              {selectedView === "week" && (
+                <motion.div
+                  key="week-view"
+                  initial={{ x: "100%", opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: "-100%", opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <WeekView />
+                </motion.div>
+              )}
+              {selectedView === "day" && (
+                <motion.div
+                  key="day-view"
+                  initial={{ x: "100%", opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: "-100%", opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <DayView />
+                </motion.div>
+              )}
+              {selectedView === "year" && (
+                <motion.div
+                  key="year-view"
+                  initial={{ x: "100%", opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: "-100%", opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <YearView role={role} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {isPopoverOpen && (
+              <EventPopover
                 role={role}
+                isOpen={isPopoverOpen}
+                onClose={closePopover}
+                date={userSelectedDate.format("YYYY-MM-DD")}
               />
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {isPopoverOpen && (
-          <EventPopover
-          role={role}
-            isOpen={isPopoverOpen}
-            onClose={closePopover}
-            date={userSelectedDate.format("YYYY-MM-DD")}
-          />
-        )}
-
-        {/* {isEventSummaryOpen && selectedEvent && (
-          <EventSummaryPopover
-            isOpen={isEventSummaryOpen}
-            onClose={closeEventSummary}
-            event={selectedEvent}
-          />
-        )} */}
-      </div>
+            )}
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
     </div>
   );
 }
