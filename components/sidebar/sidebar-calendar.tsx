@@ -133,7 +133,7 @@ export default function SideBarCalendar() {
     </div>
 
       {/* Events Section */}
-      <ScrollArea className="h-[300px]">
+      <ScrollArea className="h-[380px]">
         <div className="space-y-2 px-2">
           {currentMonthEvents.length === 0 ? (
             <div className="text-center py-4 text-sm text-muted-foreground">

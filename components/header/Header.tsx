@@ -11,11 +11,15 @@ export default async function Header() {
 
   const userImage = session?.user.image;
   const userName = session?.user.name;
- 
+
   return (
     <div className="mx-3 flex items-center justify-between py-4 ">
       <LeftSide />
-      <RightSide avatar={userImage ?? ""} username={userName} logout={signOut} />
+      <RightSide
+        avatar={userImage ?? ""}
+        username={userName}
+        logout={signOut}
+      />
     </div>
   );
 }

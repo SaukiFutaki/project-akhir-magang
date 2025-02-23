@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   Select,
@@ -19,6 +19,7 @@ import { useViewStore } from "@/lib/store";
 import { LogOut } from "lucide-react";
 import { ModeToggle } from "../dark-mode";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface IRightSideProps {
   avatar?: string;
@@ -32,6 +33,7 @@ export default function RightSide({
   logout,
 }: IRightSideProps) {
   const { selectedView, setView } = useViewStore();
+  const pathname = usePathname();
 
   const capitalizeEachWord = (string?: string) => {
     if (!string) return "User";
@@ -43,36 +45,62 @@ export default function RightSide({
 
   return (
     <div className="flex items-center space-x-4">
-      <Link href={"/dashboard/rekap"}>
-        <h1>
-          Rekap tahunan
-        </h1>
+      <Link
+        href="/dashboard"
+        className={`pb-1 ${
+          pathname === "/dashboard" ? "border-b-2 border-white" : ""
+        }`}
+      >
+        <h1>Dashboard</h1>
       </Link>
+      <Link
+        href="/dashboard/rekap"
+        className={`pb-1 ${
+          pathname === "/dashboard/rekap" ? "border-b-2 border-white" : ""
+        }`}
+      >
+        <h1>Rekap tahunan</h1>
+      </Link>
+
       <ModeToggle />
-      <Select value={selectedView} onValueChange={(v) => setView(v)}>
-        <SelectTrigger className="w-24 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0">
-          <SelectValue>
-            {selectedView === "month" && "Bulan"}
-            {selectedView === "week" && "Minggu"}
-            {selectedView === "day" && "Hari"}
-            {selectedView === "year" && "Tahun"}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="month">
-            Bulan
-          </SelectItem>
-          <SelectItem value="week">
-            Minggu
-          </SelectItem>
-          <SelectItem value="day">
-            Hari
-          </SelectItem>
-          <SelectItem value="year">
-            Tahun
-          </SelectItem>
-        </SelectContent>
-      </Select>
+      {pathname === "/dashboard/rekap" ? (
+        <Select value={selectedView} onValueChange={(v) => setView(v)}>
+          <SelectTrigger
+            className="w-24 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0"
+            disabled
+          >
+            <SelectValue>
+              {selectedView === "month" && "Bulan"}
+              {selectedView === "week" && "Minggu"}
+              {selectedView === "day" && "Hari"}
+              {selectedView === "year" && "Tahun"}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="month">Bulan</SelectItem>
+            <SelectItem value="week">Minggu</SelectItem>
+            <SelectItem value="day">Hari</SelectItem>
+            <SelectItem value="year">Tahun</SelectItem>
+          </SelectContent>
+        </Select>
+      ) : (
+        <Select value={selectedView} onValueChange={(v) => setView(v)}>
+          <SelectTrigger className="w-24 focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-ring focus-visible:ring-offset-0">
+            <SelectValue>
+              {selectedView === "month" && "Bulan"}
+              {selectedView === "week" && "Minggu"}
+              {selectedView === "day" && "Hari"}
+              {selectedView === "year" && "Tahun"}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="month">Bulan</SelectItem>
+            <SelectItem value="week">Minggu</SelectItem>
+            <SelectItem value="day">Hari</SelectItem>
+            <SelectItem value="year">Tahun</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
 
       <DropdownMenu>
         <DropdownMenuTrigger>
@@ -84,8 +112,8 @@ export default function RightSide({
         <DropdownMenuContent className="w-56 mr-4">
           <DropdownMenuLabel>{capitalizeEachWord(username)}</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem 
-            className="bg-red-500 hover:cursor-pointer text-white" 
+          <DropdownMenuItem
+            className="bg-red-500 hover:cursor-pointer text-white"
             onClick={logout}
           >
             <LogOut className="mr-2" />
