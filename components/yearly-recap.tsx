@@ -26,6 +26,7 @@ import {
   Share2,
 } from "lucide-react";
 import React from "react";
+import { Badge } from "./ui/badge";
 
 interface YearlyRecapProps {
   events: CalendarEventType[];
@@ -130,9 +131,18 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
                   <CardTitle className="text-base font-medium text-zinc-100">
                     {month}
                   </CardTitle>
-                  <span className="text-xs px-2 py-1 rounded-full bg-zinc-800 text-zinc-400">
-                    {events.length} event{events.length !== 1 ? "s" : ""}
-                  </span>
+                  {events.length == 0 ? (
+                    <Badge
+                      className="text-xs px-2 py-1 rounded-full text-white"
+                      variant={"destructive"}
+                    >
+                      Tidak ada event
+                    </Badge>
+                  ) : (
+                    <Badge className="text-xs px-2 py-1 rounded-full text-zinc-900">
+                      {events.length} event{events.length !== 1 ? "s" : ""}
+                    </Badge>
+                  )}
                 </div>
               </CardHeader>
               <ScrollArea className="h-80 w-full">
