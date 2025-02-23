@@ -191,26 +191,28 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
         <CommandList>
           <CommandEmpty>Tidak ada event yang ditemukan.</CommandEmpty>
           <CommandGroup heading="Events">
-            {allEvents.map((event) => (
-              <CommandItem
-                key={event.id}
-                onSelect={() => handleEventClick(event)}
-                className="flex items-start gap-2 p-2"
-              >
-                <CalendarDays className="w-4 h-4 mt-1 shrink-0" />
-                <div className="flex flex-col">
-                  <span>{event.title}</span>
-                  <span className="text-xs text-zinc-400">
-                    {dayjs(event.date).format("DD MMM YYYY")} - {event.time}
-                  </span>
-                  {event.location && (
-                    <span className="text-xs text-zinc-500 truncate">
-                      {event.location}
+            <ScrollArea className="h-48">
+              {allEvents.map((event) => (
+                <CommandItem
+                  key={event.id}
+                  onSelect={() => handleEventClick(event)}
+                  className="flex items-start gap-2 p-2"
+                >
+                  <CalendarDays className="w-4 h-4 mt-1 shrink-0" />
+                  <div className="flex flex-col">
+                    <span>{event.title}</span>
+                    <span className="text-xs text-zinc-400">
+                      {dayjs(event.date).format("DD MMM YYYY")} - {event.time}
                     </span>
-                  )}
-                </div>
-              </CommandItem>
-            ))}
+                    {event.location && (
+                      <span className="text-xs text-zinc-500 truncate">
+                        {event.location}
+                      </span>
+                    )}
+                  </div>
+                </CommandItem>
+              ))}
+            </ScrollArea>
           </CommandGroup>
         </CommandList>
       </CommandDialog>

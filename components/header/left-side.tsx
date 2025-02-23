@@ -10,6 +10,7 @@ import { Roboto } from "next/font/google";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 
 
@@ -25,6 +26,7 @@ const roboto = Roboto({
 
 
 export default function LeftSide() {
+   const pathname = usePathname();
   const todayDate = dayjs().tz("Asia/Jakarta");
   const { userSelectedDate, setDate, setMonth, selectedMonthIndex } =
     useDateStore();
@@ -134,16 +136,16 @@ export default function LeftSide() {
       </div>
 
       {/* Today Button */}
-      <Button variant="outline" onClick={handleTodayClick}>
+      <Button variant="outline" onClick={handleTodayClick} disabled={pathname === "/dashboard/rekap"}>
         Hari Ini
       </Button>
 
       {/* Navigation Controls */}
       <div className="flex items-center gap-3">
-        <Button variant="outline" size="icon" onClick={handlePrevClick}>
+        <Button variant="outline" size="icon" onClick={handlePrevClick}  disabled={pathname === "/dashboard/rekap"}>
           <ChevronLeft />
         </Button>
-        <Button variant="outline" size="icon" onClick={handleNextClick}>
+        <Button variant="outline" size="icon" onClick={handleNextClick} disabled={pathname === "/dashboard/rekap"}>
           <ChevronRight />
         </Button>
         {/* <MdKeyboardArrowLeft
