@@ -12,21 +12,17 @@ import { Button } from "../ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-
-
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Asia/Jakarta");
-
 
 const roboto = Roboto({
   weight: "400",
   subsets: ["latin"],
 });
 
-
 export default function LeftSide() {
-   const pathname = usePathname();
+  const pathname = usePathname();
   const todayDate = dayjs().tz("Asia/Jakarta");
   const { userSelectedDate, setDate, setMonth, selectedMonthIndex } =
     useDateStore();
@@ -126,26 +122,28 @@ export default function LeftSide() {
           height={40}
           alt="icon"
         />
-        <Link
-          href={"/dashboard"}
-        >
-        <h1 className={`${roboto.className} text-xl font-bold mx-3`}>
-          Kalender DPU BMCK
-        </h1>
+        <Link href={"/dashboard"}>
+          <h1 className={`${roboto.className} text-xl font-bold mx-3`}>
+            Kalender DPU BMCK
+          </h1>
         </Link>
       </div>
 
       {/* Today Button */}
-      <Button variant="outline" onClick={handleTodayClick} disabled={pathname === "/dashboard/rekap"}>
+      <Button
+        variant="outline"
+        onClick={handleTodayClick}
+        disabled={pathname === "/dashboard/rekap"}
+      >
         Hari Ini
       </Button>
 
       {/* Navigation Controls */}
       <div className="flex items-center gap-3">
-        <Button variant="outline" size="icon" onClick={handlePrevClick}  disabled={pathname === "/dashboard/rekap"}>
+        <Button variant="outline" size="icon" onClick={handlePrevClick}>
           <ChevronLeft />
         </Button>
-        <Button variant="outline" size="icon" onClick={handleNextClick} disabled={pathname === "/dashboard/rekap"}>
+        <Button variant="outline" size="icon" onClick={handleNextClick}>
           <ChevronRight />
         </Button>
         {/* <MdKeyboardArrowLeft

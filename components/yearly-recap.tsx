@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -27,6 +28,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Badge } from "./ui/badge";
+import { useDateStore } from "@/lib/store";
 
 interface YearlyRecapProps {
   events: CalendarEventType[];
@@ -65,9 +67,17 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
     React.useState<CalendarEventType | null>(null);
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  const { userSelectedDate } = useDateStore();
+  const selectedYear = userSelectedDate.year();
+
+  const yearEvents = events.filter(event => 
+    dayjs(event.date).year() === selectedYear
+  );
 
   const eventsByMonth = monthNames.map((monthName, index) => {
-    const monthEvents = events
+    const monthEvents = yearEvents
       .filter((event) => dayjs(event.date).month() === index)
       .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
     return {
@@ -82,6 +92,20 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
     setSearchOpen(false);
   };
 
+  const filteredEvents = yearEvents
+    .filter(
+      (event) =>
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.location?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        dayjs(event.date)
+          .format("DD MMM YYYY")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+
+  // Get only first 5 items for display
+  const displayEvents = filteredEvents.slice(0, 5);
   // Group all events by month for search
   const allEvents = events.sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
 
@@ -107,7 +131,7 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
     <div className="p-4 min-h-screen bg-zinc-950">
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-semibold text-zinc-100">
-          Rekap Event Tahunan {dayjs().year()}
+          Rekap Event Tahunan {selectedYear}
         </h2>
         <button
           onClick={() => setSearchOpen(true)}
@@ -197,12 +221,16 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
       </ScrollArea>
 
       <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <CommandInput placeholder="Cari event..." />
+        <CommandInput
+          placeholder="Cari event..."
+          value={searchQuery}
+          onValueChange={setSearchQuery}
+        />
         <CommandList>
           <CommandEmpty>Tidak ada event yang ditemukan.</CommandEmpty>
-          <CommandGroup heading="Events">
+          <CommandGroup heading={`Events (${filteredEvents.length} ditemukan)`}>
             <ScrollArea className="h-48">
-              {allEvents.map((event) => (
+              {displayEvents.map((event) => (
                 <CommandItem
                   key={event.id}
                   onSelect={() => handleEventClick(event)}
@@ -212,7 +240,7 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
                   <div className="flex flex-col">
                     <span>{event.title}</span>
                     <span className="text-xs text-zinc-400">
-                      {dayjs(event.date).format("DD MMM YYYY")} - {event.time}
+                      {dayjs(event.date).format("DD MMM YYYY")}
                     </span>
                     {event.location && (
                       <span className="text-xs text-zinc-500 truncate">
@@ -222,6 +250,15 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
                   </div>
                 </CommandItem>
               ))}
+              {filteredEvents.length > 5 && (
+                <div className="px-2 py-1.5 text-xs text-zinc-500">
+                  <span className="text-primary">
+                    {filteredEvents.length - 5}{" "}
+                  </span>
+                  event lainnya ditemukan. Terus ketik untuk mempersempit
+                  pencarian.
+                </div>
+              )}
             </ScrollArea>
           </CommandGroup>
         </CommandList>

@@ -20,6 +20,7 @@ import { LogOut } from "lucide-react";
 import { ModeToggle } from "../dark-mode";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 interface IRightSideProps {
   avatar?: string;
@@ -34,6 +35,12 @@ export default function RightSide({
 }: IRightSideProps) {
   const { selectedView, setView } = useViewStore();
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname === "/dashboard/rekap") {
+      setView("year");
+    }
+  }, [pathname, setView]);
 
   const capitalizeEachWord = (string?: string) => {
     if (!string) return "User";
