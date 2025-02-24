@@ -13,8 +13,10 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import { CalendarEventType } from "@/types";
 import dayjs from "dayjs";
@@ -22,13 +24,24 @@ import {
   Calendar,
   CalendarDays,
   Clock,
+  Edit,
+  FileText,
+  Loader2,
   MapPin,
   Search,
   Share2,
+  Trash,
 } from "lucide-react";
-import React from "react";
+import React, { startTransition, useTransition } from "react";
 import { Badge } from "./ui/badge";
 import { useDateStore } from "@/lib/store";
+import Link from "next/link";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
+import { deleteEvent } from "@/lib/actions";
+import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
+import EventDetailSheet from "./event-detail-sheet";
 
 interface YearlyRecapProps {
   events: CalendarEventType[];
@@ -68,12 +81,14 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
   const [sheetOpen, setSheetOpen] = React.useState(false);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
   const { userSelectedDate } = useDateStore();
   const selectedYear = userSelectedDate.year();
 
-  const yearEvents = events.filter(event => 
-    dayjs(event.date).year() === selectedYear
+  const yearEvents = events.filter(
+    (event) => dayjs(event.date).year() === selectedYear
   );
 
   const eventsByMonth = monthNames.map((monthName, index) => {
@@ -126,6 +141,16 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
       eventColors.length;
 
     return eventColors[colorIndex];
+  };
+
+  const deleteE = async (event: CalendarEventType) => {
+    startTransition(() => {
+      deleteEvent(event.id);
+      toast({
+        description: "Berhasil menghapus event",
+      });
+    });
+    router.refresh();
   };
   return (
     <div className="p-4 min-h-screen bg-zinc-950">
@@ -263,65 +288,13 @@ export default function YearlyRecap({ events }: YearlyRecapProps) {
           </CommandGroup>
         </CommandList>
       </CommandDialog>
-
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="w-full sm:max-w-lg">
-          {selectedEvent && (
-            <>
-              <SheetHeader>
-                <SheetTitle className="text-lg font-semibold text-zinc-100">
-                  {selectedEvent.title}
-                </SheetTitle>
-              </SheetHeader>
-              <div className="mt-6 space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3 text-zinc-300">
-                    <Clock className="w-5 h-5" />
-                    <div>
-                      <p className="text-sm">
-                        {dayjs(selectedEvent.date).format("DD MMMM YYYY")}
-                      </p>
-                      <p className="text-sm text-zinc-400">
-                        {selectedEvent.time}
-                      </p>
-                    </div>
-                  </div>
-                  {selectedEvent.location && (
-                    <div className="flex items-center gap-3 text-zinc-300">
-                      <MapPin className="w-5 h-5" />
-                      <p className="text-sm">{selectedEvent.location}</p>
-                    </div>
-                  )}
-                  {/* {selectedEvent.organizer && (
-                    <div className="flex items-center gap-3 text-zinc-300">
-                      <UserCircle className="w-5 h-5" />
-                      <p className="text-sm">{selectedEvent.organizer}</p>
-                    </div>
-                  )} */}
-                </div>
-
-                {selectedEvent.description && (
-                  <div className="pt-4 border-t border-zinc-800">
-                    <p className="text-sm text-zinc-300">
-                      {selectedEvent.description}
-                    </p>
-                  </div>
-                )}
-
-                <div className="pt-4 border-t border-zinc-800">
-                  <button
-                    className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-lg 
-                    bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition-colors duration-200"
-                  >
-                    <Share2 className="w-4 h-4" />
-                    <span className="text-sm">Bagikan Event</span>
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
-        </SheetContent>
-      </Sheet>
+      {selectedEvent && (
+        <EventDetailSheet
+          isOpen={sheetOpen}
+          onOpenChange={setSheetOpen}
+          event={selectedEvent}
+        />
+      )}
     </div>
   );
 }

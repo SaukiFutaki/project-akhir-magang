@@ -1,8 +1,11 @@
 import { MAX_FILE_SIZE, MAX_FILES } from "@/lib/constant";
 import z from "zod";
 
-
-
+export interface FilePreview {
+  file: File;
+  preview: string;
+  type: "image" | "pdf";
+}
 
 export const eventSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -10,7 +13,10 @@ export const eventSchema = z.object({
   documentationUrl: z.string().optional(),
   documentationFiles: z
     .array(
-      z.custom<File>((file) => file instanceof File, "Please upload valid files")
+      z.custom<File>(
+        (file) => file instanceof File,
+        "Please upload valid files"
+      )
     )
     .refine((files) => files.length <= MAX_FILES, {
       message: `You can only upload up to ${MAX_FILES} files`,
@@ -20,22 +26,26 @@ export const eventSchema = z.object({
       `Each file must be less than 10MB`
     )
     .refine(
-      (files) => files.every((file) => file.type.startsWith('image/')),
-      "Only image files are allowed"
+      (files) =>
+        files.every((file) => {
+          const isImage = file.type.startsWith("image/");
+          const isPdf = file.type === "application/pdf";
+          return isImage || isPdf;
+        }),
+      "Only image and PDF files are allowed"
     )
     .optional(),
   location: z.string().optional(),
-  date : z.date(),
-    time: z.string(),
+  date: z.date(),
+  time: z.string(),
 });
-
 
 export type FormEventValues = z.infer<typeof eventSchema>;
 
 export const editEventSchema = z.object({
-    title: z.string().min(1, { message: "Title is required" }),
-    description: z.string().optional(),
-    documentationUrl: z.string().url({ message: "Invalid URL" }).optional(),
-})
+  title: z.string().min(1, { message: "Title is required" }),
+  description: z.string().optional(),
+  documentationUrl: z.string().url({ message: "Invalid URL" }).optional(),
+});
 
 export type FormEditEventValues = z.infer<typeof editEventSchema>;

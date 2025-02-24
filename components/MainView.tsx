@@ -47,7 +47,7 @@ export default function MainView({ events, role }: MainViewProps) {
     <div className="flex">
       <ResizablePanelGroup direction="horizontal">
         {/* Sidebar */}
-        <ResizablePanel defaultSize={15}>
+        <ResizablePanel defaultSize={20}>
           <Sidebar />
         </ResizablePanel>
         <ResizableHandle withHandle />

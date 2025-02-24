@@ -56,6 +56,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { ScrollArea } from "./ui/scroll-area";
 import { Separator } from "./ui/separator";
 import { Badge } from "./ui/badge";
+import FilePreviewDialog from "./file-preview-dialog";
+import DialogTriggerYearView from "./dialog-trigger-year";
 
 const WEEKDAYS = ["MIN", "SEN", "SEL", "RAB", "KAM", "JUM", "SAB"];
 const eventColors = [
@@ -428,7 +430,7 @@ export default function YearView({ role }: { role: string }) {
                                 <AccordionTrigger className="text-sm">
                                   <div className="flex items-center gap-2">
                                     <ImageIcon className="h-4 w-4" />
-                                    <span>Preview gambar</span>
+                                    <span>Preview File</span>
                                   </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
@@ -436,31 +438,14 @@ export default function YearView({ role }: { role: string }) {
                                     {event.documentationFiles.map(
                                       (file, index) => (
                                         <Dialog key={index}>
-                                          <DialogTrigger asChild>
-                                            <div className="relative aspect-video cursor-pointer group">
-                                              <Image
-                                                width={200}
-                                                height={200}
-                                                src={file.url}
-                                                alt={`Documentation ${
-                                                  index + 1
-                                                }`}
-                                                className="rounded-md object-cover w-full h-full border-2 border-white transition-all group-hover:opacity-90 group-hover:scale-[1.02]"
-                                              />
-                                            </div>
-                                          </DialogTrigger>
-                                          <DialogContent className="max-w-3xl">
-                                            <div className="relative aspect-video">
-                                              <Image
-                                                fill
-                                                src={file.url}
-                                                alt={`Documentation ${
-                                                  index + 1
-                                                }`}
-                                                className="rounded-md object-contain"
-                                              />
-                                            </div>
-                                          </DialogContent>
+                                          <DialogTriggerYearView
+                                            file={file}
+                                            index={index}
+                                          />
+                                          <FilePreviewDialog
+                                            file={file}
+                                            index={index}
+                                          />
                                         </Dialog>
                                       )
                                     )}

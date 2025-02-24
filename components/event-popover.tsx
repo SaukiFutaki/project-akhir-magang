@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from "./ui/form";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { createEvent } from "@/lib/actions";
-import { eventSchema } from "@/schemas/events.schema";
+import { eventSchema, FilePreview } from "@/schemas/events.schema";
 import * as z from "zod";
 import Image from "next/image";
 import { ScrollArea } from "./ui/scroll-area";
@@ -24,12 +24,7 @@ interface EventPopoverProps {
   isOpen: boolean;
   onClose: () => void;
   date: string;
-  role : string;
-}
-
-interface FilePreview {
-  file: File;
-  preview: string;
+  role: string;
 }
 
 export default function EventPopover({
@@ -65,7 +60,7 @@ export default function EventPopover({
     if (totalFiles > MAX_FILES) {
       form.setError("documentationFiles", {
         type: "manual",
-        message: `Maximum ${MAX_FILES} images allowed`,
+        message: `Maximum ${MAX_FILES} files allowed`,
       });
       e.target.value = "";
       return;
@@ -79,10 +74,14 @@ export default function EventPopover({
         });
         return true;
       }
-      if (!file.type.startsWith("image/")) {
+
+      const isImage = file.type.startsWith("image/");
+      const isPdf = file.type === "application/pdf";
+
+      if (!isImage && !isPdf) {
         form.setError("documentationFiles", {
           type: "manual",
-          message: "Only image files are allowed",
+          message: "Only image and PDF files are allowed",
         });
         return true;
       }
@@ -102,7 +101,9 @@ export default function EventPopover({
         newPreviews.push({
           file,
           preview: reader.result as string,
+          type: file.type.startsWith("image/") ? "image" : "pdf",
         });
+
         if (newPreviews.length === files.length) {
           setFilePreviews((prev) => [...prev, ...newPreviews]);
           form.setValue("documentationFiles", [...currentFiles, ...files]);
@@ -278,14 +279,15 @@ export default function EventPopover({
                                 <Input
                                   type="file"
                                   multiple
-                                  accept="image/*"
+                                  accept="image/*,application/pdf"
                                   onChange={handleFileChange}
                                   className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900 dark:file:text-blue-200"
                                 />
                               </FormControl>
                             </div>
                             <p className="text-xs text-slate-500">
-                             maksimal upload {MAX_FILES} gambar dengan ukuran maksimal {MAX_FILE_SIZE / 1024 / 1024}MB
+                              maksimal upload {MAX_FILES} gambar dengan ukuran
+                              maksimal {MAX_FILE_SIZE / 1024 / 1024}MB
                             </p>
 
                             {/* Image Previews */}

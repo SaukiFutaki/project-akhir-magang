@@ -11,7 +11,9 @@ import Image from "next/image";
 import { Button } from "../ui/button";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import "dayjs/locale/id"; // Import bahasa Indonesia
 
+dayjs.locale("id");
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Asia/Jakarta");
@@ -116,12 +118,18 @@ export default function LeftSide() {
         >
           <Menu className="size-6" />
         </Button> */}
-        <Image
-          src={`/calendar/calendar_${todayDate.date().toString()}.svg`}
-          width={40}
-          height={40}
-          alt="icon"
-        />
+        <div className="flex flex-col items-center border-2 border-white rounded-xl p-2">
+          <Image
+            src={`/calendar/calendar_${todayDate.date().toString()}.svg`}
+            width={40}
+            height={40}
+            alt="icon"
+          />
+
+          <p className="text-sm text-center uppercase font-mono">
+            {todayDate.format("MMMM")}
+          </p>
+        </div>
         <Link href={"/dashboard"}>
           <h1 className={`${roboto.className} text-xl font-bold mx-3`}>
             Kalender DPU BMCK

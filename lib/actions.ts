@@ -20,21 +20,31 @@ export async function signOut() {
 async function uploadFiles(files: File[], bucket: string = 'file-docs') {
   try {
     const uploadPromises = files.map(async (file) => {
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split('.').pop()?.toLowerCase() || '';
       const fileName = `${uuidv4()}.${fileExt}`;
-      // Add images/ prefix to create folder structure
-      const filePath = `images/${fileName}`;
+      
+      // Determine folder based on file type
+      let folder;
+      if (fileExt === 'pdf') {
+        folder = 'pdfs';
+      } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExt || '')) {
+        folder = 'images';
+      } else {
+        throw new Error('Unsupported file type');
+      }
+
+      const filePath = `${folder}/${fileName}`;
 
       const { data, error } = await supabase.storage
         .from(bucket)
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: file.type // Add content type for proper file handling
         });
 
       if (error) throw error;
 
-      // Get public URL for the file in the images folder
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
@@ -43,11 +53,12 @@ async function uploadFiles(files: File[], bucket: string = 'file-docs') {
         url: publicUrl,
         path: filePath,
         id: data?.id || uuidv4(),
-        fullPath: `${bucket}/${filePath}`
+        fullPath: `${bucket}/${filePath}`,
+        fileType: fileExt, // Add file type information
+        fileName: file.name // Add original filename
       };
     });
 
-    // Wait for all uploads to complete
     const fileData = await Promise.all(uploadPromises);
     return fileData;
   } catch (error) {
@@ -74,6 +85,7 @@ export async function createEvent(values: FormEventValues) {
     location,
   } = values;
 
+  // Update the validation schema to include file type checks
   const validatedFields = eventSchema.safeParse({
     title,
     description,
@@ -91,19 +103,36 @@ export async function createEvent(values: FormEventValues) {
   }
 
   try {
-    // Handle multiple file uploads if files exist
-    let fileData: { url: string; path: string; id: string; fullPath: string; }[] = [];
+    let fileData: {
+      url: string;
+      path: string;
+      id: string;
+      fullPath: string;
+      fileType: string;
+      fileName: string;
+    }[] = [];
+
     if (documentationFiles && documentationFiles.length > 0) {
+      // Validate file types
+      const validFileTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif'];
+      const allFilesValid = documentationFiles.every(file => {
+        const fileExt = file.name.split('.').pop()?.toLowerCase();
+        return validFileTypes.includes(fileExt || '');
+      });
+
+      if (!allFilesValid) {
+        return { error: "Invalid file type. Only PDF and image files are allowed." };
+      }
+
       fileData = await uploadFiles(documentationFiles);
     }
 
-    // Create event with array of file data
     const event = await prisma.event.create({
       data: {
         title: validatedFields.data.title,
         description: validatedFields.data.description,
         documentationUrl: validatedFields.data.documentationUrl,
-        documentationFiles: fileData, // Store complete file data
+        documentationFiles: fileData,
         date: validatedFields.data.date,
         time: validatedFields.data.time,
         userId: session.user.id,
