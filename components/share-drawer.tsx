@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { 
@@ -10,7 +11,7 @@ import {
 import { Share2, Facebook, Twitter, Instagram } from "lucide-react";
 
 const ShareDrawer = () => {
-  const handleShare = (platform ) => {
+  const handleShare = (platform: 'facebook' | 'twitter' | 'whatsapp' | 'instagram') => {
     const url = window.location.href;
     const text = "Check out this event!";
     
@@ -18,7 +19,7 @@ const ShareDrawer = () => {
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
       whatsapp: `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`,
-      instagram: `https://instagram.com/` // Note: Instagram doesn't support direct sharing links
+      instagram: `https://instagram.com/` 
     };
     
     window.open(shareUrls[platform], '_blank');

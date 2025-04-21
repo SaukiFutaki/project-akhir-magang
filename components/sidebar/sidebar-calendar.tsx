@@ -3,12 +3,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getWeeks } from "@/lib/get-time";
 import { useDateStore, useEventStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { CalendarEventType } from "@/types";
 import dayjs from "dayjs";
 import { Clock, MapPin } from "lucide-react";
 import React, { Fragment } from "react";
 import { MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
-import EventDetailSheet from "../event-detail-sheet";
-import { CalendarEventType } from "@/types";
+import EventDetailDialog from "../event-dialog";
 
 const WEEKDAYS = ["M", "S", "S", "R", "K", "J", "S"];
 
@@ -34,6 +34,8 @@ export default function SideBarCalendar() {
     userSelectedDate,
   } = useDateStore();
   const [sheetOpen, setSheetOpen] = React.useState(false);
+  const [selectedEvent, setSelectedEvent] =
+    React.useState<CalendarEventType | null>(null);
   const { events } = useEventStore();
   const today = dayjs();
 
@@ -64,6 +66,7 @@ export default function SideBarCalendar() {
   );
 
   const handleEventClick = (event: CalendarEventType) => {
+    setSelectedEvent(event);
     setSheetOpen(true);
   };
 
@@ -155,33 +158,40 @@ export default function SideBarCalendar() {
             </div>
           ) : (
             currentMonthEvents.map((event) => (
-              <Card
-                key={event.id}
-                className={cn(
-                  "border-l-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#131314]",
-                  getEventColor(event.id)
-                )}
-                onClick={() => handleEventClick(event)}
-              >
-                <CardContent className="p-4 space-y-2 ">
-                  <div className="flex justify-between items-start gap-2">
-                    <h3 className="font-medium text-sm">{event.title}</h3>
-                    <div className="flex items-center gap-2 text-muted-foreground shrink-0">
-                      <Clock className="w-3 h-3" />
-                      <span className="text-xs">
-                        {dayjs(event.date).format("DD MMM")}
-                      </span>
-                    </div>
-                  </div>
-                  {event.location && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <MapPin className="w-3 h-3" />
-                      <span className="text-xs">{event.location}</span>
-                    </div>
+              <div key={event.id}>
+                <Card
+                  className={cn(
+                    "border-l-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#131314]",
+                    getEventColor(event.id)
                   )}
-                </CardContent>
-               
-              </Card>
+                  onClick={() => handleEventClick(event)}
+                >
+                  <CardContent className="p-4 space-y-2 ">
+                    <div className="flex justify-between items-start gap-2">
+                      <h3 className="font-medium text-sm">{event.title}</h3>
+                      <div className="flex items-center gap-2 text-muted-foreground shrink-0">
+                        <Clock className="w-3 h-3" />
+                        <span className="text-xs">
+                          {dayjs(event.date).format("DD MMM")}
+                        </span>
+                      </div>
+                    </div>
+                    {event.location && (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <MapPin className="w-3 h-3" />
+                        <span className="text-xs">{event.location}</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+                {selectedEvent && (
+                  <EventDetailDialog
+                  isOpen={sheetOpen}
+                  onOpenChange={setSheetOpen}
+                  event={selectedEvent}
+                />
+                )}
+              </div>
             ))
           )}
         </div>

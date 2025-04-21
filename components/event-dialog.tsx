@@ -1,24 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { CalendarEventType } from '@/types';
-import dayjs from 'dayjs';
-import {
+import { 
   Calendar,
+  Clock,
+  FileText,
+  MapPin,
+  Facebook,
   ChevronLeft,
   ChevronRight,
-  Clock,
-  Facebook,
-  FileText,
-  MapPin
+  X
 } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import dayjs from 'dayjs';
+import { CalendarEventType } from '@/types';
 
-interface EventDetailSheetProps {
+interface EventDetailDialogProps {
   event: CalendarEventType;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -26,13 +27,13 @@ interface EventDetailSheetProps {
   isEditable?: boolean;
 }
 
-const EventDetailSheet = ({
+const EventDetailDialog = ({
   event,
   isOpen,
   onOpenChange,
   isPending = false,
   isEditable = false,
-}: EventDetailSheetProps) => {
+}: EventDetailDialogProps) => {
   const [currentFileIndex, setCurrentFileIndex] = useState(0);
 
   if (!event) return null;
@@ -63,11 +64,21 @@ const EventDetailSheet = ({
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-2xl w-full bg-white dark:bg-gray-900 p-0 gap-0 border-l border-gray-200 dark:border-gray-800">
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-2xl w-full max-h-[90vh] p-0 overflow-hidden bg-white dark:bg-gray-900 rounded-lg">
+        {/* Close button in top-right */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => onOpenChange(false)} 
+          className="absolute right-4 top-4 z-10 rounded-full bg-white/80 dark:bg-black/50 hover:bg-white dark:hover:bg-black/70"
+        >
+          <X className="h-4 w-4" />
+        </Button>
+        
         {/* File Preview Section */}
         {event.documentationFiles && event.documentationFiles.length > 0 && (
-          <div className="relative h-[40vh] w-full bg-gray-100 dark:bg-gray-800">
+          <div className="relative h-[35vh] w-full bg-gray-100 dark:bg-gray-800">
             {event.documentationFiles[currentFileIndex].url.toLowerCase().endsWith('.pdf') ? (
               <iframe
                 src={`${event.documentationFiles[currentFileIndex].url}#view=FitH`}
@@ -112,23 +123,19 @@ const EventDetailSheet = ({
           </div>
         )}
 
-        <div className="p-6">
-          <SheetHeader>
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <SheetTitle className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {event.title}
-                </SheetTitle>
-                <SheetDescription className="text-gray-500 dark:text-gray-400">
-                  Event Details
-                </SheetDescription>
-              </div>
-            </div>
-          </SheetHeader>
+        <div className="p-6 overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+              {event.title}
+            </DialogTitle>
+            <DialogDescription className="text-gray-500 dark:text-gray-400">
+              Event Details
+            </DialogDescription>
+          </DialogHeader>
           
           <Separator className="my-4 bg-gray-200 dark:bg-gray-700" />
           
-          <ScrollArea className="h-[calc(100vh-500px)] pr-4">
+          <ScrollArea className="pr-2 max-h-[30vh]">
             <div className="space-y-6">
               {/* Event Details */}
               <Card className="p-6 space-y-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white shadow-sm">
@@ -214,9 +221,9 @@ const EventDetailSheet = ({
             </Button>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default EventDetailSheet;
+export default EventDetailDialog;
